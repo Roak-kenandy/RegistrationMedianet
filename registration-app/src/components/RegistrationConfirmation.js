@@ -391,8 +391,50 @@ const Confirmation = () => {
             return;
         }
 
-        await callAddSubscriptionDevice(subscriptionId, deviceIds);
-        setIsLoading(false); // Stop loading after all APIs complete
+        const subscriptionDeviceSuccess = await callAddSubscriptionDevice(subscriptionId, deviceIds);
+        if (!subscriptionDeviceSuccess) {
+            setIsLoading(false);
+            return;
+        }
+
+        const callPostMtvUser = async () => {
+            try {
+                const url = 'http://localhost:3004/api/v1/mtvusers';
+                const payload = {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    phoneNumber: formData.phoneNumber,
+                    countryCode: 'MDV',
+                    referralCode: formData.referralCode,
+                };
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('MTV User posted successfully:', data);
+            }
+            catch (error) {
+                console.error('Error posting MTV user:', error);
+                setPopupMessage('An error occurred while posting MTV user. Please try again.');
+                setShowPopup(true);
+            }
+        };
+
+        const postApiResult = await callPostMtvUser();
+        if (!postApiResult) {
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(false);
     };
 
     const handlePaymentStep = () => {
@@ -422,7 +464,7 @@ const Confirmation = () => {
 
             <div className="button-container">
                 <button className="confirm-button" onClick={selectedPlan === 'Free Trial' ? handleNextStep : handlePaymentStep} disabled={isLoading}>
-                {isLoading ? (
+                    {isLoading ? (
                         <span className="loading-spinner"></span>
                     ) : (
                         'Confirm & Proceed'

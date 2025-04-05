@@ -3,6 +3,6 @@ const registerProfileController = require('../controllers/registerProfileControl
 
 const router = express.Router();
 
-router.post('/post', registerProfileController.postRegisterProfile);
+router.post('/mtvusers', registerProfileController.postRegisterProfile);
 
 module.exports = router;

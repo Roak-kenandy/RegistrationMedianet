@@ -30,7 +30,7 @@ app.use(
 )
 
 //Define a routes
-app.use('/register-profile', registerProfileRoutes);
+app.use('/api/v1', registerProfileRoutes);
 
 //Default route
 app.get('/', (req, res) => {
