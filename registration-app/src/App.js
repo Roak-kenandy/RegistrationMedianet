@@ -1,24 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import RegistrationMedianet from './components/RegistrationMedianet';
+import RegistrationOtp from './components/RegistrationOtp';
+import RegistrationSucess from './components/RegistrationSuccess';
+import RegistrationConfirmation from './components/RegistrationConfirmation';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Navigate to="/registration-medianet" replace />} />
+          
+          <Route path='registration-medianet' element={<RegistrationMedianet />} />
+          <Route path='registration-otp' element={<RegistrationOtp />} />
+          <Route path='registration-success' element={<RegistrationSucess />} />
+          <Route path='registration-confirmation' element={<RegistrationConfirmation />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

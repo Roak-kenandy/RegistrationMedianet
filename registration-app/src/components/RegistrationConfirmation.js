@@ -1,0 +1,783 @@
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+const { v4: uuidv4 } = require('uuid');
+
+const Popup = ({ message, onClose }) => {
+    return (
+        <div className="popup-overlay">
+            <div className="popup-content">
+                <div className="popup-header">
+                    <span className="popup-title">Notice</span>
+                </div>
+                <div className="popup-body">
+                    <p>{message}</p>
+                </div>
+                <button className="popup-close-btn" onClick={onClose}>
+                    OK
+                </button>
+            </div>
+        </div>
+    );
+};
+
+const Confirmation = () => {
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const { selectedPlan, formData } = location.state || {};
+
+    console.log('Selected Plan:', selectedPlan);
+    console.log('Form Data:', formData);
+
+    const planDetails = {
+        'Free Trial': {
+            name: 'Free Trial',
+            duration: '30 Days',
+            price: 'Free',
+            description: 'Try our service for 30 days at no cost',
+            nextStep: 'Start your free trial now!',
+        },
+        'Standard Package': {
+            name: 'Standard Package',
+            duration: 'Monthly',
+            price: '$9.99',
+            description: 'Our standard monthly subscription',
+            nextStep: 'Proceed to payment to activate your plan!',
+        },
+    };
+
+    const selectedPlanDetails = planDetails[selectedPlan] || {
+        name: 'Unknown Plan',
+        duration: '',
+        price: '',
+        description: 'Please select a plan.',
+        nextStep: 'Go back to select a plan.',
+    };
+
+    const fetchContactsData = async (formData) => {
+        try {
+            const url = `/backoffice/v2/contacts/verify?phone=${formData.phoneNumber}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.contact_exists) {
+                setPopupMessage('This phone number already exists in our system. Please try another one.');
+                setShowPopup(true);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+            setPopupMessage('An error occurred while verifying your phone number. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const callRegisterContacts = async () => {
+        try {
+            const payload = {
+                type: 'PERSON',
+                person_name: {
+                    first_name: formData.firstName,
+                    last_name: formData.lastName
+                },
+                phone: {
+                    country_code: 'MDV',
+                    number: formData.phoneNumber,
+                    type: 'MOBILE'
+                }
+            };
+            const url = `/backoffice/v2/contacts`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.id;
+        } catch (error) {
+            console.error('Error creating contacts:', error);
+            setPopupMessage('An error occurred while creating contacts. Please try again.');
+            setShowPopup(true);
+            return null;
+        }
+    };
+
+    const callRegisteringTag = async (contact_id) => {
+        try {
+            const tags = ['0c0d20c2-08e1-4483-bcbe-638608fedaba'];
+            const url = `/backoffice/v2/contacts/${contact_id}/tags`;
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify({ tags: tags }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return true;
+        } catch (error) {
+            console.error('Error registering tag:', error);
+            setPopupMessage('An error occurred while registering a tag. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const callVirtualDevice = async (contact_id) => {
+        try {
+            const payload = {
+                serial_number: uuidv4(),
+                electronic_id: null,
+                contact_id: contact_id,
+                product_id: 'b95d8593-6d36-4a59-8407-b3c284471382',
+            };
+            const url = `/backoffice/v2/devices`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return true;
+        } catch (error) {
+            console.error('Error posting device:', error);
+            setPopupMessage('An error occurred while posting a device. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const callCreatingAccount = async (contact_id) => {
+        try {
+            const payload = {
+                classification_id: '2c3ad63b-caf8-4be1-b76c-5b0c0438a28c',
+                credit_limit: '',
+                currency_code: 'MVR',
+                is_primary: false,
+                payment_terms_id: '01ec0a1b-0a9d-4bf6-ad88-51c2bdb9edff'
+            };
+            const url = `/backoffice/v2/contacts/${contact_id}/accounts`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.id;
+        } catch (error) {
+            console.error('Error posting account:', error);
+            setPopupMessage('An error occurred while posting an account. Please try again.');
+            setShowPopup(true);
+            return null;
+        }
+    };
+
+    const callSubscription = async (account_id, contact_id) => {
+        try {
+            const payload = {
+                account_id: account_id,
+                scheduled_date: null,
+                services: [
+                    {
+                        price_terms_id: "1187c08d-2795-4c8e-84b7-75a31e8e7c9d",
+                        product_id: "f6b15e20-8309-454a-8fb0-10b73ec785c4",
+                        quantity: 1
+                    }
+                ]
+            };
+            const url = `/backoffice/v2/contacts/${contact_id}/services`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return true;
+        } catch (error) {
+            console.error('Error posting subscription:', error);
+            setPopupMessage('An error occurred while posting a subscription. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const callSubscriptionContacts = async (contact_id) => {
+        try {
+            const url = `/backoffice/v2/contacts/${contact_id}/subscriptions`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.content.length) {
+                return data.content[0].id;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting contacts:', error);
+            setPopupMessage('An error occurred while getting contacts. Please try again.');
+            setShowPopup(true);
+            return null;
+        }
+    };
+
+    const callAllowedDevices = async (subscription_id) => {
+        try {
+            const url = `/backoffice/v2/subscriptions/${subscription_id}/allowed_devices?size=50&page=1&&search_value=`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.content.length) {
+                return data.content.map(item => ({ device_id: item.device.id }));
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting allowed devices:', error);
+            setPopupMessage('An error occurred while getting allowed devices. Please try again.');
+            setShowPopup(true);
+            return null;
+        }
+    };
+
+    const callAddSubscriptionDevice = async (subscription_id, device_ids) => {
+        try {
+            const url = `/backoffice/v2/subscriptions/${subscription_id}/devices`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(device_ids[0]), // Assuming we only need to add the first device
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Only show success message here, after all API calls succeed
+            setPopupMessage('You have been registered successfully!');
+            setShowPopup(true);
+            return true;
+        } catch (error) {
+            console.error('Error posting subscription device:', error);
+            setPopupMessage('An error occurred while posting a subscription device. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const handleNextStep = async () => {
+        setIsLoading(true);
+        const isPhoneValid = await fetchContactsData(formData);
+        if (!isPhoneValid) {
+            setIsLoading(false);
+            return;
+        }
+
+        const contactId = await callRegisterContacts();
+        if (!contactId) {
+            setIsLoading(false);
+            return;
+        }
+
+        const tagSuccess = await callRegisteringTag(contactId);
+        if (!tagSuccess) {
+            setIsLoading(false);
+            return;
+        }
+
+        const deviceSuccess = await callVirtualDevice(contactId);
+        if (!deviceSuccess) {
+            setIsLoading(false);
+            return;
+        }
+
+        const accountId = await callCreatingAccount(contactId);
+        if (!accountId) {
+            setIsLoading(false);
+            return;
+        }
+
+        const subscriptionSuccess = await callSubscription(accountId, contactId);
+        if (!subscriptionSuccess) {
+            setIsLoading(false);
+            return;
+        }
+
+        const subscriptionId = await callSubscriptionContacts(contactId);
+        if (!subscriptionId) {
+            setIsLoading(false);
+            return;
+        }
+
+        const deviceIds = await callAllowedDevices(subscriptionId);
+        if (!deviceIds) {
+            setIsLoading(false);
+            return;
+        }
+
+        await callAddSubscriptionDevice(subscriptionId, deviceIds);
+        setIsLoading(false); // Stop loading after all APIs complete
+    };
+
+    const handlePaymentStep = () => {
+        console.log(selectedPlan, 'Proceeding to payment...');
+    };
+
+    const handleGoBack = () => {
+        navigate('/registration-success', { state: { formData } });
+    };
+
+    return (
+        <div className="container">
+            <div className="logo">
+                <span className="highlight">M</span> tv
+            </div>
+
+            <h1 className="title">Plan Confirmation</h1>
+            <p className="subtitle">Review your selected plan</p>
+
+            <div className="confirmation-card">
+                <h2 className="plan-name">{selectedPlanDetails.name}</h2>
+                <p className="plan-duration">{selectedPlanDetails.duration}</p>
+                <p className="plan-price">{selectedPlanDetails.price}</p>
+                <p className="plan-description">{selectedPlanDetails.description}</p>
+                <p className="next-step">{selectedPlanDetails.nextStep}</p>
+            </div>
+
+            <div className="button-container">
+                <button className="confirm-button" onClick={selectedPlan === 'Free Trial' ? handleNextStep : handlePaymentStep} disabled={isLoading}>
+                {isLoading ? (
+                        <span className="loading-spinner"></span>
+                    ) : (
+                        'Confirm & Proceed'
+                    )}
+                </button>
+                {showPopup && (
+                    <Popup
+                        message={popupMessage}
+                        onClose={() => setShowPopup(false)}
+                    />
+                )}
+                <button className="back-button" onClick={handleGoBack}>
+                    Go Back
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// CSS remains the same as in your original code
+const styles = `
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .container {
+    background-color: #1A2526;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    padding: clamp(15px, 3vw, 40px);
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  .logo {
+    position: absolute;
+    top: clamp(10px, 2vw, 20px);
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: bold;
+  }
+
+  .highlight {
+    color: #FFD700;
+  }
+
+  .title {
+    font-size: clamp(24px, 6vw, 40px);
+    margin-bottom: clamp(10px, 2vw, 20px);
+    text-align: center;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  .subtitle {
+    font-size: clamp(14px, 3vw, 18px);
+    color: #ccc;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    text-align: center;
+    animation: fadeIn 1.2s ease-in-out;
+  }
+
+  .confirmation-card {
+    background-color: #3A4445;
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 25px);
+    width: 100%;
+    max-width: clamp(300px, 50vw, 450px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+    animation: fadeIn 1.4s ease-in-out;
+  }
+
+  .confirmation-card:hover {
+    background-color: #4A5556;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+  }
+
+  .plan-name {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #FFD700;
+    margin-bottom: clamp(5px, 1vw, 10px);
+  }
+
+  .plan-duration {
+    font-size: clamp(12px, 2.5vw, 16px);
+    color: #ccc;
+    margin-bottom: clamp(5px, 1vw, 10px);
+  }
+
+  .plan-price {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: bold;
+    margin-bottom: clamp(10px, 2vw, 15px);
+  }
+
+  .plan-description {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: #ddd;
+    text-align: center;
+    margin-bottom: clamp(10px, 2vw, 15px);
+    padding: 0 clamp(5px, 1vw, 10px);
+  }
+
+  .next-step {
+    font-size: clamp(14px, 3vw, 16px);
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: clamp(15px, 3vw, 20px);
+  }
+
+  .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(10px, 2vw, 20px);
+    justify-content: center;
+    margin-top: clamp(20px, 4vw, 30px);
+  }
+
+.confirm-button {
+    padding: clamp(8px, 2vw, 12px);
+    background-color: #FFD700;
+    border: none;
+    border-radius: 20px;
+    color: #1A2526;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: clamp(120px, 30vw, 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .confirm-button:disabled {
+    background-color: #E6C200;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .confirm-button:hover:not(:disabled) {
+    background-color: #E6C200;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  }
+
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #1A2526;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .back-button {
+    padding: clamp(8px, 2vw, 12px);
+    background-color: #666;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: clamp(120px, 30vw, 150px);
+  }
+
+  .back-button:hover {
+    background-color: #888;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile Devices (up to 480px) */
+  @media (max-width: 480px) {
+    .confirmation-card {
+      max-width: 100%;
+      padding: 15px;
+    }
+    .confirm-button, .back-button {
+      width: 120px;
+    }
+    .title {
+      font-size: 24px;
+    }
+    .subtitle {
+      font-size: 14px;
+    }
+    .button-container {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  /* Tablets (481px - 768px) */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .confirmation-card {
+      max-width: 80%;
+      padding: 20px;
+    }
+    .confirm-button, .back-button {
+      width: 130px;
+    }
+    .title {
+      font-size: 28px;
+    }
+    .subtitle {
+      font-size: 16px;
+    }
+  }
+
+  /* Small Laptops/iPads (769px - 1024px) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .confirmation-card {
+      max-width: 60%;
+      padding: 20px;
+    }
+    .confirm-button, .back-button {
+      width: 140px;
+    }
+    .title {
+      font-size: 32px;
+    }
+    .subtitle {
+      font-size: 16px;
+    }
+  }
+
+  /* Laptops/Desktops (1025px and above) */
+  @media (min-width: 1025px) {
+    .confirmation-card {
+      max-width: 450px;
+      padding: 25px;
+    }
+    .confirm-button, .back-button {
+      width: 150px;
+    }
+    .title {
+      font-size: 40px;
+    }
+    .subtitle {
+      font-size: 18px;
+    }
+  }
+
+    .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .popup-content {
+    background-color: #1A2526;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .popup-header {
+    border-bottom: 1px solid #3A4445;
+    padding-bottom: 10px;
+  }
+
+  .popup-title {
+    color: #FFD700;
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: bold;
+  }
+
+  .popup-body {
+    padding: 10px 0;
+  }
+
+  .popup-body p {
+    color: #fff;
+    font-size: clamp(14px, 2.5vw, 16px);
+    text-align: center;
+  }
+
+  .popup-close-btn {
+    padding: clamp(8px, 2vw, 12px);
+    background-color: #FFD700;
+    border: none;
+    border-radius: 20px;
+    color: #1A2526;
+    font-size: clamp(14px, 2.5vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100px;
+    margin: 0 auto;
+  }
+
+  .popup-close-btn:hover {
+    background-color: #E6C200;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  }
+
+  @media (max-width: 480px) {
+    .popup-content {
+      width: 85%;
+      padding: 15px;
+    }
+    
+    .popup-close-btn {
+      width: 80px;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .popup-content {
+      width: 80%;
+    }
+  }
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
+
+export default Confirmation;
