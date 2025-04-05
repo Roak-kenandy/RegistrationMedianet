@@ -14,7 +14,7 @@ function App() {
           
           <Route path='registration-medianet' element={<RegistrationMedianet />} />
           <Route path='registration-otp' element={<RegistrationOtp />} />
-          <Route path='registration-success' element={<RegistrationSucess />} />
+          <Route path='registration-plan' element={<RegistrationSucess />} />
           <Route path='registration-confirmation' element={<RegistrationConfirmation />} />
         </Routes>
       </div>

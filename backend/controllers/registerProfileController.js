@@ -4,7 +4,6 @@ const postRegisterProfile = async (req, res) => {
     try {
 
         const {firstName, lastName,phoneNumber,countryCode,referralCode } = req.body;
-        console.log('Received data:', req.body);
 
         if (!firstName || !lastName || !phoneNumber || !countryCode) {
             return res.status(400).json({ message: 'All fields are required' });

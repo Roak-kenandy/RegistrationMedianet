@@ -1,171 +1,175 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import logoImage from '../assests/medianet-app-image.jpg';
 
 const RegistrationOtp = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { phoneNumber, formData } = location.state || {};
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [error, setError] = useState('');
-  const [timer, setTimer] = useState(60);
-  const [canResend, setCanResend] = useState(false);
-  const [generatedOtp, setGeneratedOtp] = useState(''); // Store the generated OTP
-  const hasSentInitialOtp = useRef(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { phoneNumber, formData } = location.state || {};
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [error, setError] = useState('');
+    const [timer, setTimer] = useState(60);
+    const [canResend, setCanResend] = useState(false);
+    const [generatedOtp, setGeneratedOtp] = useState(''); // Store the generated OTP
+    const hasSentInitialOtp = useRef(false);
 
-  // API configuration
-  const API_ENDPOINT = 'https://o-papim-lb01.ooredoo.mv/bulk_sms/v2';
-  const BEARER_TOKEN = 'eyJ4NXQiOiJNV0l5TkRJNVlqRTJaV1kxT0RNd01XSTNOR1ptTVRZeU5UTTJOVFZoWlRnMU5UTTNaVE5oTldKbVpERTFPVEE0TldFMVlUaGxNak5sTldFellqSXlZUSIsImtpZCI6Ik1XSXlOREk1WWpFMlpXWTFPRE13TVdJM05HWm1NVFl5TlRNMk5UVmhaVGcxTlRNM1pUTmhOV0ptWkRFMU9UQTROV0UxWVRobE1qTmxOV0V6WWpJeVlRX1JTMjU2IiwidHlwIjoiYXQrand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjMjU3NmVhMC1jZTQ5LTRjNTktYTg2Ni00MmYzZDNhZGEyNGMiLCJhdXQiOiJBUFBMSUNBVElPTiIsImF1ZCI6IkFnVnhuenNlcFNuNl9hVzFXekVRdTZfT2Y1WWEiLCJuYmYiOjE3MTA0MTU1NDEsImF6cCI6IkFnVnhuenNlcFNuNl9hVzFXekVRdTZfT2Y1WWEiLCJpc3MiOiJodHRwczpcL1wvbG9jYWxob3N0Ojk0NDNcL29hdXRoMlwvdG9rZW4iLCJleHAiOjI3MTA0MTU1NDAsImlhdCI6MTcxMDQxNTU0MSwianRpIjoiMDFjZDg3YTMtMDQ3Ni00NGMyLWEwMzAtYjVlNDc1MDExNDNkIiwiY2xpZW50X2lkIjoiQWdWeG56c2VwU242X2FXMVd6RVF1Nl9PZjVZYSJ9.Yji06itjB8vCLsh5QgIRG06PgBq6QNDrodaFQaCggASvea6uLc1QGwk_Uf-IOOmguhRuBxtcLMM8u_C9vJOrILnmOUktVCEVVw6oWMiadP6QbPbaBiEqW_R11pf1sGCS-DQzRPCH7MMpGu8KHNDBFEKQE5VMinU70kg76szcSj2AlEfuoB296xZ2l-pXSt-_oa7HzvYM2UkAEBD3zSr7vOlz4yJSSJz_az5sGCWhgwB_scF4Qpl3pZI2rwFJIM8yart22VYCX7RqpNJ3QjhK56i7MoChNXJw8godun-9Xf6QT0iqBiqbmN9U2ajPs2BSEElr1XVqNhyTukHtAYkdPw';
-  const ACCESS_KEY = 'eGRWT2w1cmtTT1loWUZzL09mQlY2SXpES1VTZjhnWGJrdkhFWEs0eTZaeGRxZlBvdFVXWmFWdVV2UnJNMkpOUA==';
+    // API configuration
+    const API_ENDPOINT = 'https://o-papim-lb01.ooredoo.mv/bulk_sms/v2';
+    const BEARER_TOKEN = 'eyJ4NXQiOiJNV0l5TkRJNVlqRTJaV1kxT0RNd01XSTNOR1ptTVRZeU5UTTJOVFZoWlRnMU5UTTNaVE5oTldKbVpERTFPVEE0TldFMVlUaGxNak5sTldFellqSXlZUSIsImtpZCI6Ik1XSXlOREk1WWpFMlpXWTFPRE13TVdJM05HWm1NVFl5TlRNMk5UVmhaVGcxTlRNM1pUTmhOV0ptWkRFMU9UQTROV0UxWVRobE1qTmxOV0V6WWpJeVlRX1JTMjU2IiwidHlwIjoiYXQrand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJjMjU3NmVhMC1jZTQ5LTRjNTktYTg2Ni00MmYzZDNhZGEyNGMiLCJhdXQiOiJBUFBMSUNBVElPTiIsImF1ZCI6IkFnVnhuenNlcFNuNl9hVzFXekVRdTZfT2Y1WWEiLCJuYmYiOjE3MTA0MTU1NDEsImF6cCI6IkFnVnhuenNlcFNuNl9hVzFXekVRdTZfT2Y1WWEiLCJpc3MiOiJodHRwczpcL1wvbG9jYWxob3N0Ojk0NDNcL29hdXRoMlwvdG9rZW4iLCJleHAiOjI3MTA0MTU1NDAsImlhdCI6MTcxMDQxNTU0MSwianRpIjoiMDFjZDg3YTMtMDQ3Ni00NGMyLWEwMzAtYjVlNDc1MDExNDNkIiwiY2xpZW50X2lkIjoiQWdWeG56c2VwU242X2FXMVd6RVF1Nl9PZjVZYSJ9.Yji06itjB8vCLsh5QgIRG06PgBq6QNDrodaFQaCggASvea6uLc1QGwk_Uf-IOOmguhRuBxtcLMM8u_C9vJOrILnmOUktVCEVVw6oWMiadP6QbPbaBiEqW_R11pf1sGCS-DQzRPCH7MMpGu8KHNDBFEKQE5VMinU70kg76szcSj2AlEfuoB296xZ2l-pXSt-_oa7HzvYM2UkAEBD3zSr7vOlz4yJSSJz_az5sGCWhgwB_scF4Qpl3pZI2rwFJIM8yart22VYCX7RqpNJ3QjhK56i7MoChNXJw8godun-9Xf6QT0iqBiqbmN9U2ajPs2BSEElr1XVqNhyTukHtAYkdPw';
+    const ACCESS_KEY = 'eGRWT2w1cmtTT1loWUZzL09mQlY2SXpES1VTZjhnWGJrdkhFWEs0eTZaeGRxZlBvdFVXWmFWdVV2UnJNMkpOUA==';
 
-  useEffect(() => {
-    if (timer > 0) {
-      const countdown = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(countdown);
-    } else {
-      setCanResend(true);
-    }
-  }, [timer]);
+    useEffect(() => {
+        if (timer > 0) {
+            const countdown = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+            return () => clearInterval(countdown);
+        } else {
+            setCanResend(true);
+        }
+    }, [timer]);
 
-  const handleOtpChange = (e, index) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 1) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-      
-      if (value && index < 5) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
-    }
-  };
+    const handleOtpChange = (e, index) => {
+        const value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 1) {
+            const newOtp = [...otp];
+            newOtp[index] = value;
+            setOtp(newOtp);
 
-  const handleVerify = () => {
-    const otpValue = otp.join('');
-    console.log('Entered OTP:', otpValue);
-    console.log('Generated OTP:', generatedOtp);
+            if (value && index < 5) {
+                document.getElementById(`otp-${index + 1}`).focus();
+            }
+        }
+    };
 
-    if (otpValue.length !== 6) {
-      setError('Please enter a 6-digit OTP');
-      return;
-    }
+    const handleVerify = () => {
+        const otpValue = otp.join('');
+        console.log('Entered OTP:', otpValue);
+        console.log('Generated OTP:', generatedOtp);
 
-    if (otpValue === generatedOtp) {
-      console.log('OTP Verified Successfully:', otpValue);
-      console.log('Registration Data:', formData);
-      navigate('/registration-success', {
-        state: { 
-            formData: formData
-          }
-      });
-    } else {
-      setError('Invalid OTP. Please try again.');
-    }
-  };
+        if (otpValue.length !== 6) {
+            setError('Please enter a 6-digit OTP');
+            return;
+        }
 
-  const sendOtp = async (phoneNumber) => {
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate and store OTP
-    setGeneratedOtp(newOtp);
+        if (otpValue === generatedOtp) {
+            console.log('OTP Verified Successfully:', otpValue);
+            console.log('Registration Data:', formData);
+            navigate('/registration-plan', {
+                state: {
+                    formData: formData
+                }
+            });
+        } else {
+            setError('Invalid OTP. Please try again.');
+        }
+    };
 
-    try {
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${BEARER_TOKEN}`,
-          'User-Agent': 'insomnia/8.3.0',
-        },
-        body: JSON.stringify({
-          username: 'sms@medianet.mv',
-          access_key: ACCESS_KEY,
-          message: `Your OTP is: ${newOtp}`,
-          batch: phoneNumber
-        })
-      });
+    const sendOtp = async (phoneNumber) => {
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate and store OTP
+        setGeneratedOtp(newOtp);
 
-      if (!response.ok) {
-        throw new Error('Failed to send OTP');
-      }
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${BEARER_TOKEN}`,
+                    'User-Agent': 'insomnia/8.3.0',
+                },
+                body: JSON.stringify({
+                    username: 'sms@medianet.mv',
+                    access_key: ACCESS_KEY,
+                    message: `Your OTP is: ${newOtp}`,
+                    batch: phoneNumber
+                })
+            });
 
-      const data = await response.json();
-      console.log('OTP Sent:', data);
-      setError('');
-    } catch (err) {
-      console.error('Error sending OTP:', err);
-      setError('Failed to send OTP. Please try again.');
-      setGeneratedOtp(''); // Clear generated OTP on failure
-    }
-  };
+            if (!response.ok) {
+                throw new Error('Failed to send OTP');
+            }
 
-  const handleResend = () => {
-    if (canResend) {
-      sendOtp(phoneNumber);
-      setTimer(60);
-      setCanResend(false);
-      setOtp(['', '', '', '', '', '']);
-      setError('');
-    }
-  };
+            const data = await response.json();
+            console.log('OTP Sent:', data);
+            setError('');
+        } catch (err) {
+            console.error('Error sending OTP:', err);
+            setError('Failed to send OTP. Please try again.');
+            setGeneratedOtp(''); // Clear generated OTP on failure
+        }
+    };
 
-  useEffect(() => {
-    if (phoneNumber && !hasSentInitialOtp.current) {
-      hasSentInitialOtp.current = true;
-      sendOtp(phoneNumber);
-    }
-  }, [phoneNumber]);
+    const handleResend = () => {
+        if (canResend) {
+            sendOtp(phoneNumber);
+            setTimer(60);
+            setCanResend(false);
+            setOtp(['', '', '', '', '', '']);
+            setError('');
+        }
+    };
 
-  return (
-    <div className="container">
-      <div className="logo">
+    useEffect(() => {
+        if (phoneNumber && !hasSentInitialOtp.current) {
+            hasSentInitialOtp.current = true;
+            sendOtp(phoneNumber);
+        }
+    }, [phoneNumber]);
+
+    return (
+        <div className="container">
+            {/* <div className="logo">
         <span className="highlight">M</span> tv
-      </div>
+      </div> */}
+            <div className="logo">
+                <img src={logoImage} alt="Medianet Logo" className="logo-image" />
+            </div>
 
-      <h1 className="title">Enter OTP</h1>
-      <p className="subtitle">
-        We've sent a 6-digit code to {phoneNumber || 'your phone number'}
-      </p>
+            <h1 className="title">Enter OTP</h1>
+            <p className="subtitle">
+                We've sent a 6-digit code to {phoneNumber || 'your phone number'}
+            </p>
 
-      <div className="otp-container">
-        {otp.map((digit, index) => (
-          <input
-            key={index}
-            id={`otp-${index}`}
-            type="text"
-            maxLength="1"
-            value={digit}
-            onChange={(e) => handleOtpChange(e, index)}
-            className="otp-input"
-          />
-        ))}
-      </div>
+            <div className="otp-container">
+                {otp.map((digit, index) => (
+                    <input
+                        key={index}
+                        id={`otp-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={digit}
+                        onChange={(e) => handleOtpChange(e, index)}
+                        className="otp-input"
+                    />
+                ))}
+            </div>
 
-      {error && <span className="error">{error}</span>}
+            {error && <span className="error">{error}</span>}
 
-      <button 
-        className="submit-button" 
-        onClick={handleVerify}
-      >
-        Verify OTP
-      </button>
+            <button
+                className="submit-button"
+                onClick={handleVerify}
+            >
+                Verify OTP
+            </button>
 
-      <p className="resend">
-        Didn't receive the code?{' '}
-        <span 
-          className={`resend-link ${!canResend ? 'disabled' : ''}`}
-          onClick={handleResend}
-        >
-          {canResend ? 'Resend OTP' : `Resend OTP (${timer}s)`}
-        </span>
-      </p>
-    </div>
-  );
+            <p className="resend">
+                Didn't receive the code?{' '}
+                <span
+                    className={`resend-link ${!canResend ? 'disabled' : ''}`}
+                    onClick={handleResend}
+                >
+                    {canResend ? 'Resend OTP' : `Resend OTP (${timer}s)`}
+                </span>
+            </p>
+        </div>
+    );
 };
 
 // Styles remain unchanged
 const styles = `
   .container {
-    background-color: #1A2526;
+    background-color: #12203b;
     min-height: 100vh;
     width: 100%;
     display: flex;
@@ -177,11 +181,63 @@ const styles = `
     padding: 20px;
   }
 
-  .logo {
+.logo {
     position: absolute;
     top: 20px;
-    font-size: clamp(20px, 4vw, 28px);
-    font-weight: bold;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 200px; /* Adjust this value based on your logo size */
+    padding: 0 10px;
+    z-index: 1;
+  }
+
+  .logo-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    max-height: 80px; /* Adjust this value based on your needs */
+  }
+
+  /* ... (rest of the existing styles remain the same) */
+
+  /* Updated media queries for logo responsiveness */
+  @media (max-width: 480px) {
+    .logo {
+      max-width: 150px;
+      top: 15px;
+    }
+    .logo-image {
+      max-height: 60px;
+    }
+    .container {
+      padding: 15px;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .logo {
+      max-width: 180px;
+    }
+    .logo-image {
+      max-height: 70px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    .logo {
+      max-width: 200px;
+    }
+  }
+
+  @media (min-width: 1201px) {
+    .logo {
+      max-width: 250px;
+    }
+    .logo-image {
+      max-height: 100px;
+    }
   }
 
   .highlight {

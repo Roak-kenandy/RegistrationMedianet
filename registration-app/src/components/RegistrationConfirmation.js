@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import logoImage from '../assests/medianet-app-image.jpg';
 const { v4: uuidv4 } = require('uuid');
 
 const Popup = ({ message, onClose }) => {
@@ -34,9 +35,9 @@ const Confirmation = () => {
     const planDetails = {
         'Free Trial': {
             name: 'Free Trial',
-            duration: '30 Days',
+            duration: '10 Days',
             price: 'Free',
-            description: 'Try our service for 30 days at no cost',
+            description: 'Try our service for 10 days at no cost',
             nextStep: 'Start your free trial now!',
         },
         'Standard Package': {
@@ -54,38 +55,6 @@ const Confirmation = () => {
         price: '',
         description: 'Please select a plan.',
         nextStep: 'Go back to select a plan.',
-    };
-
-    const fetchContactsData = async (formData) => {
-        try {
-            const url = `/backoffice/v2/contacts/verify?phone=${formData.phoneNumber}`;
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.contact_exists) {
-                setPopupMessage('This phone number already exists in our system. Please try another one.');
-                setShowPopup(true);
-                return false;
-            }
-            return true;
-        } catch (error) {
-            console.error('Error fetching product data:', error);
-            setPopupMessage('An error occurred while verifying your phone number. Please try again.');
-            setShowPopup(true);
-            return false;
-        }
     };
 
     const callRegisterContacts = async () => {
@@ -343,11 +312,11 @@ const Confirmation = () => {
 
     const handleNextStep = async () => {
         setIsLoading(true);
-        const isPhoneValid = await fetchContactsData(formData);
-        if (!isPhoneValid) {
-            setIsLoading(false);
-            return;
-        }
+        // const isPhoneValid = await fetchContactsData(formData);
+        // if (!isPhoneValid) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
         const contactId = await callRegisterContacts();
         if (!contactId) {
@@ -442,13 +411,16 @@ const Confirmation = () => {
     };
 
     const handleGoBack = () => {
-        navigate('/registration-success', { state: { formData } });
+        navigate('/registration-plan', { state: { formData } });
     };
 
     return (
         <div className="container">
-            <div className="logo">
+            {/* <div className="logo">
                 <span className="highlight">M</span> tv
+            </div> */}
+            <div className="logo">
+                <img src={logoImage} alt="Medianet Logo" className="logo-image" />
             </div>
 
             <h1 className="title">Plan Confirmation</h1>
@@ -493,7 +465,7 @@ const styles = `
   }
 
   .container {
-    background-color: #1A2526;
+    background-color: #12203b;
     min-height: 100vh;
     width: 100%;
     display: flex;
@@ -506,11 +478,63 @@ const styles = `
     animation: fadeIn 1s ease-in-out;
   }
 
-  .logo {
+.logo {
     position: absolute;
-    top: clamp(10px, 2vw, 20px);
-    font-size: clamp(20px, 5vw, 32px);
-    font-weight: bold;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 200px; /* Adjust this value based on your logo size */
+    padding: 0 10px;
+    z-index: 1;
+  }
+
+  .logo-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    max-height: 80px; /* Adjust this value based on your needs */
+  }
+
+  /* ... (rest of the existing styles remain the same) */
+
+  /* Updated media queries for logo responsiveness */
+  @media (max-width: 480px) {
+    .logo {
+      max-width: 150px;
+      top: 15px;
+    }
+    .logo-image {
+      max-height: 60px;
+    }
+    .container {
+      padding: 15px;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .logo {
+      max-width: 180px;
+    }
+    .logo-image {
+      max-height: 70px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    .logo {
+      max-width: 200px;
+    }
+  }
+
+  @media (min-width: 1201px) {
+    .logo {
+      max-width: 250px;
+    }
+    .logo-image {
+      max-height: 100px;
+    }
   }
 
   .highlight {
