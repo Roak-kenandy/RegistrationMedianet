@@ -29,9 +29,6 @@ const Confirmation = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { selectedPlan, formData } = location.state || {};
 
-    console.log('Selected Plan:', selectedPlan);
-    console.log('Form Data:', formData);
-
     const planDetails = {
         'Free Trial': {
             name: 'Free Trial',
@@ -214,6 +211,8 @@ const Confirmation = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            const data = await response.json();
             return true;
         } catch (error) {
             console.error('Error posting subscription:', error);
@@ -297,10 +296,12 @@ const Confirmation = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const data = await response.json();
 
             // Only show success message here, after all API calls succeed
             setPopupMessage('You have been registered successfully!');
             setShowPopup(true);
+            navigate('/registration-medianet');
             return true;
         } catch (error) {
             console.error('Error posting subscription device:', error);
@@ -309,6 +310,97 @@ const Confirmation = () => {
             return false;
         }
     };
+
+    const callAssignDevices = async (contact_id) => {
+        try {
+            const url = `/backoffice/v2/contacts/${contact_id}/services`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.content[0]?.id || null;
+        } catch (error) {
+            console.error('Error posting subscription:', error);
+            setPopupMessage('An error occurred while posting a subscription. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+
+    const callAssignSubscriptions = async (service_id, device_ids) => {
+        const updatedDevices = device_ids.map(device => ({
+            ...device,
+            action: 'ENABLE'
+          }));
+        try {
+            const url = `/backoffice/v2/services/${service_id}/devices`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+                },
+                body: JSON.stringify(updatedDevices),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            else {
+                callPostMtvUser()
+            }
+
+            const data = await response.json();
+            return data.content[0]?.id || null;
+        } catch (error) {
+            console.error('Error posting subscription:', error);
+            setPopupMessage('An error occurred while posting a subscription. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    }
+
+    const callPostMtvUser = async () => {
+        try {
+            const url = 'http://localhost:3004/api/v1/mtvusers';
+            const payload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phoneNumber: formData.phoneNumber,
+                countryCode: 'MDV',
+                referralCode: formData.referralCode,
+            };
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+        }
+        catch (error) {
+            console.error('Error posting MTV user:', error);
+            setPopupMessage('An error occurred while posting MTV user. Please try again.');
+            setShowPopup(true);
+        }
+    };
+
 
     const handleNextStep = async () => {
         setIsLoading(true);
@@ -366,39 +458,14 @@ const Confirmation = () => {
             return;
         }
 
-        const callPostMtvUser = async () => {
-            try {
-                const url = 'http://localhost:3004/api/v1/mtvusers';
-                const payload = {
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    phoneNumber: formData.phoneNumber,
-                    countryCode: 'MDV',
-                    referralCode: formData.referralCode,
-                };
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                console.log('MTV User posted successfully:', data);
-            }
-            catch (error) {
-                console.error('Error posting MTV user:', error);
-                setPopupMessage('An error occurred while posting MTV user. Please try again.');
-                setShowPopup(true);
-            }
-        };
+        const callAssignDevice = await callAssignDevices(contactId);
+        if (!callAssignDevice) {
+            setIsLoading(false);
+            return;
+        }
 
-        const postApiResult = await callPostMtvUser();
-        if (!postApiResult) {
+        const callAssignSubscription = await callAssignSubscriptions(callAssignDevice, deviceIds);
+        if (!callAssignSubscription) {
             setIsLoading(false);
             return;
         }
@@ -415,7 +482,7 @@ const Confirmation = () => {
     };
 
     return (
-        <div className="container">
+        <div className="container-confirmation">
             {/* <div className="logo">
                 <span className="highlight">M</span> tv
             </div> */}
@@ -464,7 +531,7 @@ const styles = `
     box-sizing: border-box;
   }
 
-  .container {
+  .container-confirmation {
     background-color: #12203b;
     min-height: 100vh;
     width: 100%;
@@ -475,7 +542,7 @@ const styles = `
     font-family: 'Roboto', sans-serif;
     color: #fff;
     padding: clamp(15px, 3vw, 40px);
-    animation: fadeIn 1s ease-in-out;
+    
   }
 
 .logo {
@@ -545,7 +612,7 @@ const styles = `
     font-size: clamp(24px, 6vw, 40px);
     margin-bottom: clamp(10px, 2vw, 20px);
     text-align: center;
-    animation: fadeIn 1s ease-in-out;
+    
   }
 
   .subtitle {

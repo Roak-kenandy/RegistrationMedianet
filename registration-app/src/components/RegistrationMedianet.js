@@ -23,28 +23,7 @@ const Popup = ({ message, onClose }) => {
 const RegistrationMedianet = () => {
     const navigate = useNavigate();
     const countryData = [
-        { name: 'Australia', code: 'AUS', phoneCode: '+61', flag: '🇦🇺', phoneLength: 9 },
-        { name: 'Brazil', code: 'BRA', phoneCode: '+55', flag: '🇧🇷', phoneLength: 11 },
-        { name: 'Canada', code: 'CAN', phoneCode: '+1', flag: '🇨🇦', phoneLength: 10 },
-        { name: 'China', code: 'CHN', phoneCode: '+86', flag: '🇨🇳', phoneLength: 11 },
-        { name: 'France', code: 'FRA', phoneCode: '+33', flag: '🇫🇷', phoneLength: 9 },
-        { name: 'Germany', code: 'DEU', phoneCode: '+49', flag: '🇩🇪', phoneLength: 11 },
-        { name: 'India', code: 'IND', phoneCode: '+91', flag: '🇮🇳', phoneLength: 10 },
-        { name: 'Japan', code: 'JPN', phoneCode: '+81', flag: '🇯🇵', phoneLength: 10 },
-        { name: 'Macau', code: 'MAC', phoneCode: '+853', flag: '🇲🇴', phoneLength: 8 },
-        { name: 'Macedonia (FYROM)', code: 'MKD', phoneCode: '+389', flag: '🇲🇰', phoneLength: 8 },
-        { name: 'Madagascar', code: 'MDG', phoneCode: '+261', flag: '🇲🇬', phoneLength: 9 },
-        { name: 'Malawi', code: 'MWI', phoneCode: '+265', flag: '🇲🇼', phoneLength: 9 },
-        { name: 'Malaysia', code: 'MYS', phoneCode: '+60', flag: '🇲🇾', phoneLength: 9 },
         { name: 'Maldives', code: 'MDV', phoneCode: '+960', flag: '🇲🇻', phoneLength: 7 },
-        { name: 'Mexico', code: 'MEX', phoneCode: '+52', flag: '🇲🇽', phoneLength: 10 },
-        { name: 'Nigeria', code: 'NGA', phoneCode: '+234', flag: '🇳🇬', phoneLength: 10 },
-        { name: 'Russia', code: 'RUS', phoneCode: '+7', flag: '🇷🇺', phoneLength: 10 },
-        { name: 'South Africa', code: 'ZAF', phoneCode: '+27', flag: '🇿🇦', phoneLength: 9 },
-        { name: 'South Korea', code: 'KOR', phoneCode: '+82', flag: '🇰🇷', phoneLength: 10 },
-        { name: 'Spain', code: 'ESP', phoneCode: '+34', flag: '🇪🇸', phoneLength: 9 },
-        { name: 'United Kingdom', code: 'GBR', phoneCode: '+44', flag: '🇬🇧', phoneLength: 10 },
-        { name: 'United States', code: 'USA', phoneCode: '+1', flag: '🇺🇸', phoneLength: 10 },
     ];
 
     const [formData, setFormData] = useState({
@@ -108,8 +87,6 @@ const RegistrationMedianet = () => {
             }
 
             const data = await response.json();
-
-            console.log(data, 'Contact data fetched successfully');
 
             if (data.contact_exists) {
                 setPopupMessage('This phone number already exists in our system. Please try another one.');
@@ -207,9 +184,7 @@ const RegistrationMedianet = () => {
 
             const data = await response.json();
             const filteredContent = data.content.find(item => item.name === 'OTT');
-            console.log(filteredContent, 'filtered contents')
             const tags = filteredContent ? ['0c0d20c2-08e1-4483-bcbe-638608fedaba'] : [];
-            console.log(tags, 'tags getting')
             setTags(tags);
 
             return {
@@ -233,7 +208,7 @@ const RegistrationMedianet = () => {
     const selectedCountry = countryData.find(country => country.code === formData.countryCode);
 
     return (
-        <div className="container">
+        <div className="container-registration">
             {/* <div className="logo">
         <span className="highlight">M</span> tv
       </div> */}
@@ -347,7 +322,7 @@ const styles = `
     box-sizing: border-box;
   }
 
-  .container {
+  .container-registration {
     background-color: #12203b;
     min-height: 100vh;
     width: 100%;
@@ -549,14 +524,6 @@ const styles = `
     box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .container, .title, .form {
-    animation: fadeIn 1s ease-in-out;
-  }
 
   @media (max-width: 480px) {
     .container {

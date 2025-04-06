@@ -13,7 +13,6 @@ const Success = () => {
         }
     }, [location.state]);
 
-    console.log('Form Data:', formData);
 
     const plans = [
         {
@@ -22,6 +21,7 @@ const Success = () => {
             price: 'Free',
             description: 'Try our service for 10 days at no cost',
             features: ['Full access to content', 'No commitment', 'Cancel anytime'],
+            selectButton: 'Select Plan'
         },
         {
             name: 'Standard Package',
@@ -29,6 +29,7 @@ const Success = () => {
             price: '$9.99',
             description: 'Our standard monthly subscription',
             features: ['Unlimited streaming', 'HD quality', 'Multi-device support'],
+            selectButton: 'Subscription'
         },
     ];
 
@@ -37,7 +38,7 @@ const Success = () => {
     };
 
     return (
-        <div className="container">
+        <div className="container-plan">
             {/* <div className="logo">
                 <span className="highlight">M</span> tv
             </div> */}
@@ -62,9 +63,15 @@ const Success = () => {
                         </ul>
                         <button
                             className="select-button"
-                            onClick={() => handlePlanSelect(plan.name)}
+                            onClick={() => {
+                                if (plan.selectButton === "Subscription") {
+                                    window.open("https://my.medianet.mv/", "_blank"); // Opens in a new tab
+                                } else {
+                                    handlePlanSelect(plan.name); // Existing function for other cases
+                                }
+                            }}
                         >
-                            Select Plan
+                            {plan.selectButton}
                         </button>
                     </div>
                 ))}
@@ -80,7 +87,7 @@ const styles = `
     box-sizing: border-box;
   }
 
-  .container {
+  .container-plan {
     background-color: #12203b;
     min-height: 100vh;
     width: 100%;
@@ -91,7 +98,7 @@ const styles = `
     font-family: 'Roboto', sans-serif;
     color: #fff;
     padding: clamp(15px, 3vw, 40px);
-    animation: fadeIn 1s ease-in-out;
+    
   }
 
 .logo {
@@ -161,7 +168,7 @@ const styles = `
     font-size: clamp(24px, 6vw, 40px);
     margin-bottom: clamp(10px, 2vw, 20px);
     text-align: center;
-    animation: fadeIn 1s ease-in-out;
+    
   }
 
   .subtitle {

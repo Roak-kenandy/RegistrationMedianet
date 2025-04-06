@@ -10,7 +10,7 @@ const RegistrationOtp = () => {
     const [error, setError] = useState('');
     const [timer, setTimer] = useState(60);
     const [canResend, setCanResend] = useState(false);
-    const [generatedOtp, setGeneratedOtp] = useState(''); // Store the generated OTP
+    const [generatedOtp, setGeneratedOtp] = useState('');
     const hasSentInitialOtp = useRef(false);
 
     // API configuration
@@ -31,6 +31,16 @@ const RegistrationOtp = () => {
 
     const handleOtpChange = (e, index) => {
         const value = e.target.value.replace(/\D/g, '');
+        
+        if (e.key === 'Backspace' && !value && index > 0) {
+            // Handle backspace when input is empty
+            const newOtp = [...otp];
+            newOtp[index] = '';
+            setOtp(newOtp);
+            document.getElementById(`otp-${index - 1}`).focus();
+            return;
+        }
+
         if (value.length <= 1) {
             const newOtp = [...otp];
             newOtp[index] = value;
@@ -38,14 +48,13 @@ const RegistrationOtp = () => {
 
             if (value && index < 5) {
                 document.getElementById(`otp-${index + 1}`).focus();
-            }
+            };
+            
         }
     };
 
     const handleVerify = () => {
         const otpValue = otp.join('');
-        console.log('Entered OTP:', otpValue);
-        console.log('Generated OTP:', generatedOtp);
 
         if (otpValue.length !== 6) {
             setError('Please enter a 6-digit OTP');
@@ -53,8 +62,6 @@ const RegistrationOtp = () => {
         }
 
         if (otpValue === generatedOtp) {
-            console.log('OTP Verified Successfully:', otpValue);
-            console.log('Registration Data:', formData);
             navigate('/registration-plan', {
                 state: {
                     formData: formData
@@ -66,7 +73,7 @@ const RegistrationOtp = () => {
     };
 
     const sendOtp = async (phoneNumber) => {
-        const newOtp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate and store OTP
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedOtp(newOtp);
 
         try {
@@ -90,12 +97,11 @@ const RegistrationOtp = () => {
             }
 
             const data = await response.json();
-            console.log('OTP Sent:', data);
             setError('');
         } catch (err) {
             console.error('Error sending OTP:', err);
             setError('Failed to send OTP. Please try again.');
-            setGeneratedOtp(''); // Clear generated OTP on failure
+            setGeneratedOtp('');
         }
     };
 
@@ -117,10 +123,7 @@ const RegistrationOtp = () => {
     }, [phoneNumber]);
 
     return (
-        <div className="container">
-            {/* <div className="logo">
-        <span className="highlight">M</span> tv
-      </div> */}
+        <div className="container-otp">
             <div className="logo">
                 <img src={logoImage} alt="Medianet Logo" className="logo-image" />
             </div>
@@ -129,6 +132,8 @@ const RegistrationOtp = () => {
             <p className="subtitle">
                 We've sent a 6-digit code to {phoneNumber || 'your phone number'}
             </p>
+
+            {error && <span className="error-otp">{error}</span>}
 
             <div className="otp-container">
                 {otp.map((digit, index) => (
@@ -139,19 +144,11 @@ const RegistrationOtp = () => {
                         maxLength="1"
                         value={digit}
                         onChange={(e) => handleOtpChange(e, index)}
+                        onKeyDown={(e) => handleOtpChange(e, index)}
                         className="otp-input"
                     />
                 ))}
             </div>
-
-            {error && <span className="error">{error}</span>}
-
-            <button
-                className="submit-button"
-                onClick={handleVerify}
-            >
-                Verify OTP
-            </button>
 
             <p className="resend">
                 Didn't receive the code?{' '}
@@ -162,13 +159,19 @@ const RegistrationOtp = () => {
                     {canResend ? 'Resend OTP' : `Resend OTP (${timer}s)`}
                 </span>
             </p>
+
+            <button
+                className="submit-button"
+                onClick={handleVerify}
+            >
+                Verify OTP
+            </button>
         </div>
     );
 };
 
-// Styles remain unchanged
 const styles = `
-  .container {
+  .container-otp {
     background-color: #12203b;
     min-height: 100vh;
     width: 100%;
@@ -181,13 +184,13 @@ const styles = `
     padding: 20px;
   }
 
-.logo {
+  .logo {
     position: absolute;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 200px; /* Adjust this value based on your logo size */
+    max-width: 200px;
     padding: 0 10px;
     z-index: 1;
   }
@@ -197,12 +200,9 @@ const styles = `
     height: auto;
     display: block;
     object-fit: contain;
-    max-height: 80px; /* Adjust this value based on your needs */
+    max-height: 80px;
   }
 
-  /* ... (rest of the existing styles remain the same) */
-
-  /* Updated media queries for logo responsiveness */
   @media (max-width: 480px) {
     .logo {
       max-width: 150px;
@@ -253,8 +253,8 @@ const styles = `
   .subtitle {
     font-size: clamp(14px, 2.5vw, 16px);
     color: #ccc;
-    margin-bottom: 2rem;
     text-align: center;
+    margin-bottom: 1rem;
   }
 
   .otp-container {
@@ -283,10 +283,10 @@ const styles = `
     background-color: #4A5556;
   }
 
-  .error {
+  .error-otp {
     color: #ff4444;
     font-size: clamp(12px, 2vw, 14px);
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
   }
 
   .submit-button {
@@ -309,7 +309,7 @@ const styles = `
   }
 
   .resend {
-    margin-top: 20px;
+    margin-bottom: 20px;
     font-size: clamp(12px, 2vw, 14px);
     color: #ccc;
   }
