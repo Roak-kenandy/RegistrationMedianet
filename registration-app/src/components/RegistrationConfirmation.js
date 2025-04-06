@@ -68,7 +68,7 @@ const Confirmation = () => {
                     type: 'MOBILE'
                 }
             };
-            const url = `https://app.crm.com/backoffice/v2/contacts`;
+            const url = `/backoffice/v2/contacts`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -96,7 +96,7 @@ const Confirmation = () => {
     const callRegisteringTag = async (contact_id) => {
         try {
             const tags = ['0c0d20c2-08e1-4483-bcbe-638608fedaba'];
-            const url = `https://app.crm.com/backoffice/v2/contacts/${contact_id}/tags`;
+            const url = `/backoffice/v2/contacts/${contact_id}/tags`;
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
@@ -127,7 +127,7 @@ const Confirmation = () => {
                 contact_id: contact_id,
                 product_id: 'b95d8593-6d36-4a59-8407-b3c284471382',
             };
-            const url = `https://app.crm.com/backoffice/v2/devices`;
+            const url = `/backoffice/v2/devices`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -159,7 +159,7 @@ const Confirmation = () => {
                 is_primary: false,
                 payment_terms_id: '01ec0a1b-0a9d-4bf6-ad88-51c2bdb9edff'
             };
-            const url = `https://app.crm.com/backoffice/v2/contacts/${contact_id}/accounts`;
+            const url = `/backoffice/v2/contacts/${contact_id}/accounts`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -197,7 +197,7 @@ const Confirmation = () => {
                     }
                 ]
             };
-            const url = `https://app.crm.com/backoffice/v2/contacts/${contact_id}/services`;
+            const url = `/backoffice/v2/contacts/${contact_id}/services`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -224,7 +224,7 @@ const Confirmation = () => {
 
     const callSubscriptionContacts = async (contact_id) => {
         try {
-            const url = `https://app.crm.com/backoffice/v2/contacts/${contact_id}/subscriptions`;
+            const url = `/backoffice/v2/contacts/${contact_id}/subscriptions`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -253,7 +253,7 @@ const Confirmation = () => {
 
     const callAllowedDevices = async (subscription_id) => {
         try {
-            const url = `https://app.crm.com/backoffice/v2/subscriptions/${subscription_id}/allowed_devices?size=50&page=1&&search_value=`;
+            const url = `/backoffice/v2/subscriptions/${subscription_id}/allowed_devices?size=50&page=1&&search_value=`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -282,7 +282,7 @@ const Confirmation = () => {
 
     const callAddSubscriptionDevice = async (subscription_id, device_ids) => {
         try {
-            const url = `https://app.crm.com/backoffice/v2/subscriptions/${subscription_id}/devices`;
+            const url = `/backoffice/v2/subscriptions/${subscription_id}/devices`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -313,7 +313,7 @@ const Confirmation = () => {
 
     const callAssignDevices = async (contact_id) => {
         try {
-            const url = `https://app.crm.com/backoffice/v2/contacts/${contact_id}/services`;
+            const url = `/backoffice/v2/contacts/${contact_id}/services`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -338,12 +338,13 @@ const Confirmation = () => {
     };
 
     const callAssignSubscriptions = async (service_id, device_ids) => {
+
         const updatedDevices = device_ids.map(device => ({
             ...device,
             action: 'ENABLE'
           }));
         try {
-            const url = `https://app.crm.com/backoffice/v2/services/${service_id}/devices`;
+            const url = `/backoffice/v2/services/${service_id}/devices`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
