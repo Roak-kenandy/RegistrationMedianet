@@ -72,7 +72,7 @@ const RegistrationMedianet = () => {
 
     const fetchContactsData = async () => {
         try {
-            const url = `/backoffice/v2/contacts/verify?phone=${formData.phoneNumber}`;
+            const url = `https://app.crm.com/backoffice/v2/contacts/verify?phone=${formData.phoneNumber}`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
