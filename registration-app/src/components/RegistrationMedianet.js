@@ -119,7 +119,9 @@ const RegistrationMedianet = () => {
                 const { isValid } = validateForm();
                 if (isValid) {
                     const selectedCountry = countryData.find(country => country.code === formData.countryCode);
-                    // Navigate to RegistrationOtp with phone number
+
+                    localStorage.setItem('medianetCompleted', 'true');
+
                     navigate('/registration-otp', {
                         state: {
                             phoneNumber: `${selectedCountry.phoneCode}${formData.phoneNumber}`,
