@@ -119,37 +119,66 @@ const Confirmation = () => {
         }
     };
 
+    // const callVirtualDevice = async (contact_id) => {
+    //     try {
+    //         const payload = {
+    //             serial_number: uuidv4(),
+    //             electronic_id: null,
+    //             contact_id: contact_id,
+    //             product_id: 'b95d8593-6d36-4a59-8407-b3c284471382',
+    //         };
+    //         const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/devices`;
+    //         const response = await fetch(url, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //             },
+    //             body: JSON.stringify(payload),
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+    //         return true;
+    //     } catch (error) {
+    //         console.error('Error posting device:', error);
+    //         setPopupMessage('An error occurred while posting a device. Please try again.');
+    //         setShowPopup(true);
+    //         return false;
+    //     }
+    // };
+
     const callVirtualDevice = async (contact_id) => {
         try {
-            const payload = {
-                serial_number: uuidv4(),
-                electronic_id: null,
-                contact_id: contact_id,
-                product_id: 'b95d8593-6d36-4a59-8407-b3c284471382',
-            };
-            const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/devices`;
-            const response = await fetch(url, {
+            const response = await fetch('http://localhost:3004/api/v1/devices', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ contact_id }),
             });
-
+    
+            const result = await response.json();
+    
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                console.error('API Error:', result);
+                setPopupMessage('API error: ' + (result?.error || 'Unknown error'));
+                setShowPopup(true);
+                return false;
             }
+    
+            console.log('Device Created:', result);
             return true;
         } catch (error) {
-            console.error('Error posting device:', error);
-            setPopupMessage('An error occurred while posting a device. Please try again.');
+            console.error('Request failed:', error);
+            setPopupMessage('Something went wrong. Please try again.');
             setShowPopup(true);
             return false;
         }
     };
-
+    
     const callCreatingAccount = async (contact_id) => {
         try {
             const payload = {
