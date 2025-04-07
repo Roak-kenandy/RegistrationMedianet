@@ -179,135 +179,191 @@ const Confirmation = () => {
         }
     };
     
+    // const callCreatingAccount = async (contact_id) => {
+    //     try {
+    //         const payload = {
+    //             classification_id: '2c3ad63b-caf8-4be1-b76c-5b0c0438a28c',
+    //             credit_limit: '',
+    //             currency_code: 'MVR',
+    //             is_primary: false,
+    //             payment_terms_id: '01ec0a1b-0a9d-4bf6-ad88-51c2bdb9edff'
+    //         };
+    //         const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/accounts`;
+    //         const response = await fetch(url, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //             },
+    //             body: JSON.stringify(payload),
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+    //         return data.id;
+    //     } catch (error) {
+    //         console.error('Error posting account:', error);
+    //         setPopupMessage('An error occurred while posting an account. Please try again.');
+    //         setShowPopup(true);
+    //         return null;
+    //     }
+    // };
+
     const callCreatingAccount = async (contact_id) => {
         try {
-            const payload = {
-                classification_id: '2c3ad63b-caf8-4be1-b76c-5b0c0438a28c',
-                credit_limit: '',
-                currency_code: 'MVR',
-                is_primary: false,
-                payment_terms_id: '01ec0a1b-0a9d-4bf6-ad88-51c2bdb9edff'
-            };
-            const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/accounts`;
-            const response = await fetch(url, {
+            const response = await fetch('https://mtvdev.medianet.mv/api/v1/accounts', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({ contact_id }),
             });
-
+    
+            const result = await response.json();
+    
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                console.error('API Error:', result);
+                setPopupMessage('API error: ' + (result?.error || 'Unknown error'));
+                setShowPopup(true);
+                return false;
             }
-
-            const data = await response.json();
-            return data.id;
-        } catch (error) {
-            console.error('Error posting account:', error);
-            setPopupMessage('An error occurred while posting an account. Please try again.');
-            setShowPopup(true);
-            return null;
-        }
-    };
-
-    const callSubscription = async (account_id, contact_id) => {
-        try {
-            const payload = {
-                account_id: account_id,
-                scheduled_date: null,
-                services: [
-                    {
-                        price_terms_id: "1187c08d-2795-4c8e-84b7-75a31e8e7c9d",
-                        product_id: "f6b15e20-8309-454a-8fb0-10b73ec785c4",
-                        quantity: 1
-                    }
-                ]
-            };
-            const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/services`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
+    
+            console.log('Account Created:', result);
             return true;
         } catch (error) {
-            console.error('Error posting subscription:', error);
-            setPopupMessage('An error occurred while posting a subscription. Please try again.');
+            console.error('Request failed:', error);
+            setPopupMessage('Something went wrong. Please try again.');
+            setShowPopup(true);
+            return false;
+        }
+    };
+    // const callSubscription = async (account_id, contact_id) => {
+    //     try {
+    //         const payload = {
+    //             account_id: account_id,
+    //             scheduled_date: null,
+    //             services: [
+    //                 {
+    //                     price_terms_id: "1187c08d-2795-4c8e-84b7-75a31e8e7c9d",
+    //                     product_id: "f6b15e20-8309-454a-8fb0-10b73ec785c4",
+    //                     quantity: 1
+    //                 }
+    //             ]
+    //         };
+    //         const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/services`;
+    //         const response = await fetch(url, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //             },
+    //             body: JSON.stringify(payload),
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+    //         return true;
+    //     } catch (error) {
+    //         console.error('Error posting subscription:', error);
+    //         setPopupMessage('An error occurred while posting a subscription. Please try again.');
+    //         setShowPopup(true);
+    //         return false;
+    //     }
+    // };
+
+    // const callSubscriptionContacts = async (contact_id) => {
+    //     try {
+    //         const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/subscriptions`;
+    //         const response = await fetch(url, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //             },
+    //         });
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+    //         if (data.content.length) {
+    //             return data.content[0].id;
+    //         }
+    //         return null;
+    //     } catch (error) {
+    //         console.error('Error getting contacts:', error);
+    //         setPopupMessage('An error occurred while getting contacts. Please try again.');
+    //         setShowPopup(true);
+    //         return null;
+    //     }
+    // };
+
+    const callSubscriptionContacts = async (contact_id) => {
+        try {
+            const response = await fetch(`https://mtvdev.medianet.mv/api/v1/getSubscriptionContacts/${contact_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            const result = await response.json();
+    
+            if (!response.ok) {
+                console.error('API Error:', result);
+                setPopupMessage('API error: ' + (result?.error || 'Unknown error'));
+                setShowPopup(true);
+                return false;
+            }
+    
+            console.log('Account Created:', result);
+            return true;
+        } catch (error) {
+            console.error('Request failed:', error);
+            setPopupMessage('Something went wrong. Please try again.');
             setShowPopup(true);
             return false;
         }
     };
 
-    const callSubscriptionContacts = async (contact_id) => {
-        try {
-            const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/contacts/${contact_id}/subscriptions`;
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
-                },
-            });
+    // const callAllowedDevices = async (subscription_id) => {
+    //     try {
+    //         const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/subscriptions/${subscription_id}/allowed_devices?size=50&page=1&&search_value=`;
+    //         const response = await fetch(url, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //             },
+    //         });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
 
-            const data = await response.json();
-            if (data.content.length) {
-                return data.content[0].id;
-            }
-            return null;
-        } catch (error) {
-            console.error('Error getting contacts:', error);
-            setPopupMessage('An error occurred while getting contacts. Please try again.');
-            setShowPopup(true);
-            return null;
-        }
-    };
-
-    const callAllowedDevices = async (subscription_id) => {
-        try {
-            const url = `${process.env.REACT_APP_API_BASE_URL}/backoffice/v2/subscriptions/${subscription_id}/allowed_devices?size=50&page=1&&search_value=`;
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.content.length) {
-                return data.content.map(item => ({ device_id: item.device.id }));
-            }
-            return null;
-        } catch (error) {
-            console.error('Error getting allowed devices:', error);
-            setPopupMessage('An error occurred while getting allowed devices. Please try again.');
-            setShowPopup(true);
-            return null;
-        }
-    };
+    //         const data = await response.json();
+    //         if (data.content.length) {
+    //             return data.content.map(item => ({ device_id: item.device.id }));
+    //         }
+    //         return null;
+    //     } catch (error) {
+    //         console.error('Error getting allowed devices:', error);
+    //         setPopupMessage('An error occurred while getting allowed devices. Please try again.');
+    //         setShowPopup(true);
+    //         return null;
+    //     }
+    // };
 
     const callAddSubscriptionDevice = async (subscription_id, device_ids) => {
         try {
@@ -403,7 +459,7 @@ const Confirmation = () => {
 
     const callPostMtvUser = async () => {
         try {
-            const url = 'http://localhost:3004/api/v1/mtvusers';
+            const url = 'https://mtvdev.medianet.mv/api/v1/mtvusers';
             const payload = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
@@ -464,11 +520,11 @@ const Confirmation = () => {
             return;
         }
 
-        const subscriptionSuccess = await callSubscription(accountId, contactId);
-        if (!subscriptionSuccess) {
-            setIsLoading(false);
-            return;
-        }
+        // const subscriptionSuccess = await callSubscription(accountId, contactId);
+        // if (!subscriptionSuccess) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
         const subscriptionId = await callSubscriptionContacts(contactId);
         if (!subscriptionId) {
@@ -476,29 +532,29 @@ const Confirmation = () => {
             return;
         }
 
-        const deviceIds = await callAllowedDevices(subscriptionId);
-        if (!deviceIds) {
-            setIsLoading(false);
-            return;
-        }
+        // const deviceIds = await callAllowedDevices(subscriptionId);
+        // if (!deviceIds) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
-        const subscriptionDeviceSuccess = await callAddSubscriptionDevice(subscriptionId, deviceIds);
-        if (!subscriptionDeviceSuccess) {
-            setIsLoading(false);
-            return;
-        }
+        // const subscriptionDeviceSuccess = await callAddSubscriptionDevice(subscriptionId, deviceIds);
+        // if (!subscriptionDeviceSuccess) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
-        const callAssignDevice = await callAssignDevices(contactId);
-        if (!callAssignDevice) {
-            setIsLoading(false);
-            return;
-        }
+        // const callAssignDevice = await callAssignDevices(contactId);
+        // if (!callAssignDevice) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
-        const callAssignSubscription = await callAssignSubscriptions(callAssignDevice, deviceIds);
-        if (!callAssignSubscription) {
-            setIsLoading(false);
-            return;
-        }
+        // const callAssignSubscription = await callAssignSubscriptions(callAssignDevice, deviceIds);
+        // if (!callAssignSubscription) {
+        //     setIsLoading(false);
+        //     return;
+        // }
 
         setIsLoading(false);
     };
