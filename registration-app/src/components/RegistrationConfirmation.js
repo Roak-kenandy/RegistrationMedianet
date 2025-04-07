@@ -152,7 +152,7 @@ const Confirmation = () => {
 
     const callVirtualDevice = async (contact_id) => {
         try {
-            const response = await fetch('http://localhost:3004/api/v1/devices', {
+            const response = await fetch('https://mtvdev.medianet.mv/api/v1/devices', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
