@@ -37,13 +37,6 @@ const Confirmation = () => {
             description: 'Try our service for 10 days at no cost',
             nextStep: 'Start your free trial now!',
         },
-        'Standard Package': {
-            name: 'Standard Package',
-            duration: 'Monthly',
-            price: '$9.99',
-            description: 'Our standard monthly subscription',
-            nextStep: 'Proceed to payment to activate your plan!',
-        },
     };
 
     const selectedPlanDetails = planDetails[selectedPlan] || {
@@ -133,7 +126,7 @@ const Confirmation = () => {
     //             headers: {
     //                 'Accept': 'application/json',
     //                 'Content-Type': 'application/json',
-    //                 'api_key': 'c54504d4-0fbe-41cc-a11e-822710db9b8d'
+    //                 'api_key': process.env.REACT_APP_API_KEY
     //             },
     //             body: JSON.stringify(payload),
     //         });

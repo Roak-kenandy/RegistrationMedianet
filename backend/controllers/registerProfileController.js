@@ -40,6 +40,79 @@ const postRegisterProfile = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Promise<void>}
  */
+const CRM_BASE_URL = 'https://app.crm.com/backoffice/v2';
+const DEFAULT_TAG_ID = '0c0d20c2-08e1-4483-bcbe-638608fedaba';
+const API_KEY = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
+
+const handleResponse = async (response, context) => {
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`${context} failed: ${error}`);
+  }
+  return response.json();
+};
+
+const registerContactTag = async (contactId, tags = [DEFAULT_TAG_ID]) => {
+  try {
+    const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/tags`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api_key': API_KEY,
+      },
+      body: JSON.stringify({ tags }),
+    });
+
+    return handleResponse(response, `Tag registration for contact ${contactId}`);
+  } catch (error) {
+    console.error(`Tag registration error for contact ${contactId}:`, error);
+    throw error;
+  }
+};
+
+const postRegisterContact = async (req, res) => {
+  try {
+    const payload = req.body;
+
+    // Create contact
+    const contactResponse = await fetch(`${CRM_BASE_URL}/contacts`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api_key': API_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const contactData = await handleResponse(contactResponse, 'Contact creation');
+
+    // Add default tag
+    if (contactData?.id) {
+      await registerContactTag(contactData.id);
+    }
+
+    return res.status(201).json({
+        id: contactData.id
+      });
+
+  } catch (error) {
+    console.error('Contact registration error:', error);
+    const statusCode = error.message.includes('failed') ? 400 : 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || 'Internal server error'
+    });
+  }
+};
+
+/**
+ * Registers a device to the CRM system
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
 const postDeviceToCRM = async (req, res) => {
     const { contact_id } = req.body;
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
@@ -157,12 +230,6 @@ const postSubscription = async (contactId, accountId) => {
     }
 };
 
-/**
- * Retrieves subscription details for a contact
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @returns {Promise<void>}
- */
 const getSubscriptionContacts = async (req, res) => {
     const { contact_id } = req.params;
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
@@ -184,14 +251,15 @@ const getSubscriptionContacts = async (req, res) => {
         }
 
         if (data.content?.length) {
-            const allowedDevices = await getAllowedDevices(data.content[0].id, contact_id);
+            const allowedDevicesData = await getAllowedDevices(data.content[0].id, contact_id);
             return res.status(200).json({
                 subscription_id: data.content[0].id,
-                device_ids: allowedDevices || [],
+                device_ids: allowedDevicesData.deviceIds || [],
+                custom_fields: allowedDevicesData.customFields || null, // Include custom fields in response
             });
         }
 
-        return res.status(200).json(data);
+        return res.status(200).json({ subscription_id: null, device_ids: [], custom_fields: null });
     } catch (error) {
         console.error('Error fetching subscription from CRM:', error);
         return res.status(500).json({ error: 'Internal server error' });
@@ -202,7 +270,7 @@ const getSubscriptionContacts = async (req, res) => {
  * Retrieves allowed devices for a subscription
  * @param {string} subscriptionId - Subscription identifier
  * @param {string} contactId - Contact identifier
- * @returns {Promise<Array|null>}
+ * @returns {Promise<Object|null>}
  */
 const getAllowedDevices = async (subscriptionId, contactId) => {
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
@@ -224,10 +292,14 @@ const getAllowedDevices = async (subscriptionId, contactId) => {
 
         if (data.content?.length) {
             const deviceIds = data.content.map(item => ({ device_id: item.device.id }));
-            await postAddSubscriptionDevice(subscriptionId, deviceIds, contactId);
+            const assignedDevicesData = await postAddSubscriptionDevice(subscriptionId, deviceIds, contactId);
+            return {
+                deviceIds: assignedDevicesData.deviceIds || [],
+                customFields: assignedDevicesData.customFields || null, // Pass custom fields
+            };
         }
-        
-        return [];
+
+        return { deviceIds: [], customFields: null };
     } catch (error) {
         console.error('Error fetching allowed devices from CRM:', error);
         return null;
@@ -239,7 +311,7 @@ const getAllowedDevices = async (subscriptionId, contactId) => {
  * @param {string} subscriptionId - Subscription identifier
  * @param {Array} deviceIds - Array of device identifiers
  * @param {string} contactId - Contact identifier
- * @returns {Promise<void>}
+ * @returns {Promise<Object>}
  */
 const postAddSubscriptionDevice = async (subscriptionId, deviceIds, contactId) => {
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
@@ -258,10 +330,17 @@ const postAddSubscriptionDevice = async (subscriptionId, deviceIds, contactId) =
         const data = await response.json();
 
         if (data.id) {
-            await getAssignDevices(contactId, deviceIds);
+            const assignedDevicesData = await getAssignDevices(contactId, deviceIds, subscriptionId);
+            return {
+                deviceIds: assignedDevicesData.deviceIds || [],
+                customFields: assignedDevicesData.customFields || null, // Pass custom fields
+            };
         }
+
+        return { deviceIds: [], customFields: null };
     } catch (error) {
         console.error('Error adding devices to subscription:', error);
+        return { deviceIds: [], customFields: null };
     }
 };
 
@@ -269,9 +348,10 @@ const postAddSubscriptionDevice = async (subscriptionId, deviceIds, contactId) =
  * Retrieves services to assign devices
  * @param {string} contactId - Contact identifier
  * @param {Array} deviceIds - Array of device identifiers
- * @returns {Promise<void|null>}
+ * @param {string} subscriptionId - Subscription identifier
+ * @returns {Promise<Object|null>}
  */
-const getAssignDevices = async (contactId, deviceIds) => {
+const getAssignDevices = async (contactId, deviceIds, subscriptionId) => {
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
@@ -285,13 +365,21 @@ const getAssignDevices = async (contactId, deviceIds) => {
         });
 
         const data = await response.json();
+        console.log(data, 'data before logn');
 
         if (data.content?.length) {
-            await postAssignDevices(data.content[0]?.id, deviceIds);
+            console.log('coming to the assign devices');
+            const assignedDevicesData = await postAssignDevices(data.content[0]?.id, deviceIds, subscriptionId);
+            return {
+                deviceIds: assignedDevicesData.deviceIds || [],
+                customFields: assignedDevicesData.customFields || null, // Pass custom fields
+            };
         }
+
+        return { deviceIds: null, customFields: null };
     } catch (error) {
         console.error('Error fetching services for device assignment:', error);
-        return null;
+        return { deviceIds: null, customFields: null };
     }
 };
 
@@ -299,9 +387,11 @@ const getAssignDevices = async (contactId, deviceIds) => {
  * Assigns devices to a service
  * @param {string} serviceId - Service identifier
  * @param {Array} deviceIds - Array of device identifiers
- * @returns {Promise<void>}
+ * @param {string} subscriptionId - Subscription identifier
+ * @returns {Promise<Object>}
  */
-const postAssignDevices = async (serviceId, deviceIds) => {
+const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
+    console.log('postAssignDevices called');
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
@@ -320,9 +410,78 @@ const postAssignDevices = async (serviceId, deviceIds) => {
             body: JSON.stringify(updatedDevices),
         });
 
-        await response.json();
+        const data = await response.json();
+        const customFields = await getCustomFields(subscriptionId); // Get custom fields data
+        console.log(data, 'data comesa logn');
+
+        return {
+            deviceIds: data,
+            customFields: customFields || null, // Include custom fields in return
+        };
     } catch (error) {
         console.error('Error assigning devices to service:', error);
+        return { deviceIds: null, customFields: null };
+    }
+};
+
+/**
+ * Retrieves custom fields for a subscription
+ * @param {string} subscriptionId - Subscription identifier
+ * @returns {Promise<Object|null>}
+ */
+const getCustomFields = async (subscriptionId) => {
+    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
+
+    try {
+        const response = await fetch(
+            `https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'api_key': apiKey,
+                },
+            }
+        );
+
+        const data = await response.json();
+        console.log(data, 'data before logn');
+        return data; // Return the data
+    } catch (error) {
+        console.error('Error fetching services for device assignment:', error);
+        return null;
+    }
+};
+
+const getSubDeviceCode = async (req, res) => {
+    const { subscription_id } = req.params;
+    console.log(subscription_id, 'subscription id');
+    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
+
+    try {
+        const response = await fetch(`https://app.crm.com/backoffice/v2/subscriptions/${subscription_id}/devices?include_total=true&include_custom_fields=true&size=5&page=1`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'api_key': apiKey,
+            },
+        });
+
+        const data = await response.json();
+
+        console.log(data,'a\data originla idss')
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data });
+        }
+
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error fetching subscription from CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -330,5 +489,7 @@ module.exports = {
     postRegisterProfile, 
     postDeviceToCRM, 
     postAccount, 
-    getSubscriptionContacts 
+    getSubscriptionContacts,
+    postRegisterContact,
+    getSubDeviceCode
 };

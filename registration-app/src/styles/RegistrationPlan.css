@@ -1,0 +1,382 @@
+/* Existing styles remain unchanged until the popup section */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container-plan {
+    background-color: #12203b;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    padding: clamp(15px, 3vw, 40px);
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 200px;
+    padding: 0 10px;
+    z-index: 1;
+}
+
+.logo-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    max-height: 80px;
+}
+
+@media (max-width: 480px) {
+    .logo {
+        max-width: 150px;
+        top: 15px;
+    }
+
+    .logo-image {
+        max-height: 60px;
+    }
+
+    .container-plan {
+        padding: 15px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .logo {
+        max-width: 180px;
+    }
+
+    .logo-image {
+        max-height: 70px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .logo {
+        max-width: 200px;
+    }
+}
+
+@media (min-width: 1201px) {
+    .logo {
+        max-width: 250px;
+    }
+
+    .logo-image {
+        max-height: 100px;
+    }
+}
+
+.highlight {
+    color: #FFD700;
+}
+
+.title {
+    font-size: clamp(24px, 6vw, 40px);
+    margin-bottom: clamp(10px, 2vw, 20px);
+    text-align: center;
+}
+
+.subtitle {
+    font-size: clamp(14px, 3vw, 18px);
+    color: #ccc;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    text-align: center;
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+.plans-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(15px, 2vw, 30px);
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    animation: fadeIn 1.4s ease-in-out;
+}
+
+.plan-card {
+    background-color: #3A4445;
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 25px);
+    width: 100%;
+    max-width: clamp(250px, 40vw, 350px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover {
+    transform: scale(1.03);
+    background-color: #4A5556;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.2);
+}
+
+.plan-name {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #FFD700;
+    margin-bottom: clamp(5px, 1vw, 10px);
+}
+
+.plan-duration {
+    font-size: clamp(12px, 2.5vw, 16px);
+    color: #ccc;
+    margin-bottom: clamp(5px, 1vw, 10px);
+}
+
+.plan-price {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: bold;
+    margin-bottom: clamp(10px, 2vw, 15px);
+}
+
+.plan-description {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: #ddd;
+    text-align: center;
+    margin-bottom: clamp(10px, 2vw, 15px);
+    padding: 0 clamp(5px, 1vw, 10px);
+}
+
+.plan-features {
+    list-style: none;
+    margin-bottom: clamp(15px, 3vw, 20px);
+    text-align: center;
+    padding: 0 clamp(5px, 1vw, 10px);
+}
+
+.plan-features li {
+    font-size: clamp(11px, 2vw, 14px);
+    color: #fff;
+    margin: clamp(3px, 0.5vw, 5px) 0;
+}
+
+.select-button {
+    padding: clamp(8px, 2vw, 12px);
+    background-color: #FFD700;
+    border: none;
+    border-radius: 20px;
+    color: #1A2526;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: clamp(120px, 30vw, 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.select-button:hover {
+    background-color: #E6C200;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.spinner {
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid #1A2526;
+}
+
+@keyframes spin {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .plans-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .plan-card {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .select-button {
+        width: 120px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .plans-container {
+        gap: 20px;
+    }
+
+    .plan-card {
+        max-width: 45%;
+        padding: 20px;
+    }
+
+    .select-button {
+        width: 130px;
+    }
+
+    .title {
+        font-size: 28px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .plans-container {
+        gap: 25px;
+    }
+
+    .plan-card {
+        max-width: 45%;
+        padding: 20px;
+    }
+
+    .select-button {
+        width: 140px;
+    }
+
+    .title {
+        font-size: 32px;
+    }
+
+    .subtitle {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .plans-container {
+        gap: 30px;
+    }
+
+    .plan-card {
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .select-button {
+        width: 150px;
+    }
+
+    .title {
+        font-size: 40px;
+    }
+
+    .subtitle {
+        font-size: 18px;
+    }
+}
+
+/* Popup Styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    color: #333;
+}
+
+.popup-header {
+    margin-bottom: 15px;
+}
+
+.popup-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.popup-body {
+    margin-bottom: 20px;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.popup-confirm-btn {
+    padding: 10px 20px;
+    background-color: #FFD700;
+    border: none;
+    border-radius: 5px;
+    color: #1A2526;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.popup-confirm-btn:hover {
+    background-color: #E6C200;
+}
+
+.popup-cancel-btn {
+    padding: 10px 20px;
+    background-color: #ccc;
+    border: none;
+    border-radius: 5px;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.popup-cancel-btn:hover {
+    background-color: #bbb;
+}

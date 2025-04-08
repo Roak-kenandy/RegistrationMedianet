@@ -1,0 +1,155 @@
+/* RegistrationSuccess.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container-success {
+    background-color: #12203b;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    color: #fff;
+    padding: clamp(15px, 3vw, 40px);
+    text-align: center;
+}
+
+.welcome-text {
+    font-size: clamp(16px, 3vw, 20px);
+    color: #fff;
+    margin-bottom: 10px;
+    position: absolute;
+    top: 20px;
+}
+
+.logo {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 200px;
+    padding: 0 10px;
+    z-index: 1;
+}
+
+.logo-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    max-height: 80px;
+}
+
+.title {
+    font-size: clamp(24px, 6vw, 40px);
+    margin-bottom: clamp(10px, 2vw, 20px);
+    text-align: center;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: clamp(14px, 3vw, 18px);
+    color: #ccc;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    text-align: center;
+    animation: fadeIn 1.2s ease-in-out;
+    max-width: 600px;
+}
+
+.login-details-box {
+    background-color: #3a4445;
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 25px);
+    width: 100%;
+    max-width: clamp(300px, 40vw, 400px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: clamp(20px, 4vw, 40px);
+}
+
+.box-title {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #fff;
+    margin-bottom: clamp(10px, 2vw, 15px);
+}
+
+.box-text {
+    font-size: clamp(14px, 3vw, 16px);
+    color: #ddd;
+    margin: clamp(5px, 1vw, 10px) 0;
+}
+
+.back-to-login-btn {
+    padding: clamp(8px, 2vw, 12px);
+    background-color: #ffd700;
+    border: none;
+    border-radius: 20px;
+    color: #1a2526;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: clamp(200px, 30vw, 250px);
+    margin-top: clamp(10px, 2vw, 15px);
+}
+
+.back-to-login-btn:hover {
+    background-color: #e6c200;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.footer-text {
+    font-size: clamp(14px, 3vw, 18px);
+    color: #ffd700;
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design remains the same */
+@media (max-width: 480px) {
+    .welcome-text { font-size: 16px; top: 15px; }
+    .logo { max-width: 150px; top: 40px; }
+    .logo-image { max-height: 60px; }
+    .container-success { padding: 15px; }
+    .title { font-size: 24px; }
+    .subtitle { font-size: 14px; }
+    .login-details-box { padding: 15px; }
+    .back-to-login-btn { width: 200px; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .welcome-text { font-size: 18px; }
+    .logo { max-width: 180px; top: 45px; }
+    .logo-image { max-height: 70px; }
+    .title { font-size: 28px; }
+    .subtitle { font-size: 16px; }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .welcome-text { font-size: 20px; }
+    .logo { max-width: 200px; top: 50px; }
+}
+
+@media (min-width: 1201px) {
+    .welcome-text { font-size: 20px; }
+    .logo { max-width: 250px; top: 50px; }
+    .logo-image { max-height: 100px; }
+}
