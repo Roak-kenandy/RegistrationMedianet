@@ -79,6 +79,7 @@ const RegistrationOtp = () => {
       console.log('OTP sent successfully');
       setError('');
     } catch (err) {
+      logToServer('error sending OTP: ' + err);
       console.log('Error sending OTP:', err);
       console.error('Error sending OTP:', err);
       setError('Failed to send OTP. Please try again.');
