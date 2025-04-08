@@ -8,9 +8,6 @@ const apiHeaders = {
 
 export const apiService = {
   async get(endpoint, params = {}) {
-    console.log(endpoint,'enpoint datas');
-    console.log(params ,'params datas');
-    console.log(`${API_CONFIG.BASE_URL}${endpoint}`,'url datas');
     const url = new URL(`${API_CONFIG.BASE_URL}${endpoint}`);
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
     

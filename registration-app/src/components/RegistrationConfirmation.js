@@ -162,7 +162,6 @@ const Confirmation = () => {
                 return false;
             }
     
-            console.log('Device Created:', result);
             return true;
         } catch (error) {
             console.error('Request failed:', error);
@@ -224,8 +223,6 @@ const Confirmation = () => {
                 setShowPopup(true);
                 return false;
             }
-    
-            console.log('Account Created:', result);
             return true;
         } catch (error) {
             console.error('Request failed:', error);
@@ -318,8 +315,6 @@ const Confirmation = () => {
                 setShowPopup(true);
                 return false;
             }
-    
-            console.log('Account Created:', result);
             return true;
         } catch (error) {
             console.error('Request failed:', error);
@@ -553,7 +548,6 @@ const Confirmation = () => {
     };
 
     const handlePaymentStep = () => {
-        console.log(selectedPlan, 'Proceeding to payment...');
     };
 
     const handleGoBack = () => {

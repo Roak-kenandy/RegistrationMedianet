@@ -48,7 +48,7 @@
       max-width: 180px;
     }
     .logo-image {
-      max-height: 70px;
+      max-height: 100px; /* Updated from 70px to 100px */
     }
   }
   
@@ -63,7 +63,7 @@
       max-width: 130px;
     }
     .logo-image {
-      max-height: 100px;
+      max-height: 120px; /* Updated from 100px to 120px */
     }
   }
   

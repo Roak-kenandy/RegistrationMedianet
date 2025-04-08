@@ -69,18 +69,15 @@ const RegistrationOtp = () => {
 
   const sendOtp = async (phoneNumber) => {
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('Generated OTP:', newOtp);
     logToServer('Generated OTP: ' + newOtp);
     setGeneratedOtp(newOtp);
 
     try {
     logToServer('Sending OTP to: ' + phoneNumber);
       await smsService.sendOtp(phoneNumber, newOtp);
-      console.log('OTP sent successfully');
       setError('');
     } catch (err) {
       logToServer('error sending OTP: ' + err);
-      console.log('Error sending OTP:', err);
       console.error('Error sending OTP:', err);
       setError('Failed to send OTP. Please try again.');
       setGeneratedOtp('');

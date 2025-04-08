@@ -35,7 +35,6 @@ const RegistrationPlan = () => {
     let deviceCode = 'N/A';
     try {
       const contactId = await registrationService.registerContact(formData);
-      console.log(contactId, 'contact idsss')
       if (!contactId) throw new Error('Failed to register contact');
 
       // const tagSuccess = await registrationService.registerTag(contactId);
@@ -52,7 +51,6 @@ const RegistrationPlan = () => {
 
       const subscriptionDeviceCode = await registrationService.getSubDeviceCode(subscriptionSuccess.subscription_id);
       if (!subscriptionDeviceCode) throw new Error('Failed to get subscription contacts');
-      console.log(subscriptionDeviceCode.content[0],'subscriptionDeviceCode.content[0]?.custom_fields')
       deviceCode = subscriptionDeviceCode.content[0]?.custom_fields?.find(field => field.key === 'code')?.value ||'N/A';
 
 

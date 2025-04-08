@@ -33,8 +33,6 @@ export const registrationService = {
         body: JSON.stringify(payload),
       });
 
-      console.log('Payload:', payload);
-
       const result = await response.json();
       if (!response.ok) {
         throw new Error(`API error: ${result?.error || 'Unknown error'}`);
@@ -111,7 +109,6 @@ export const registrationService = {
       });
 
       const result = await response.json();
-      console.log('Subscription Contacts:', result);
       if (!response.ok) {
         throw new Error(`API error: ${result?.error || 'Unknown error'}`);
       }

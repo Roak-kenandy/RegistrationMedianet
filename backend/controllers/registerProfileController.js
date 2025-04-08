@@ -372,10 +372,7 @@ const getAssignDevices = async (contactId, deviceIds, subscriptionId) => {
         });
 
         const data = await response.json();
-        console.log(data, 'data before logn');
-
         if (data.content?.length) {
-            console.log('coming to the assign devices');
             const assignedDevicesData = await postAssignDevices(data.content[0]?.id, deviceIds, subscriptionId);
             return {
                 deviceIds: assignedDevicesData.deviceIds || [],
@@ -398,7 +395,6 @@ const getAssignDevices = async (contactId, deviceIds, subscriptionId) => {
  * @returns {Promise<Object>}
  */
 const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
-    console.log('postAssignDevices called');
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
@@ -419,7 +415,6 @@ const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
 
         const data = await response.json();
         const customFields = await getCustomFields(subscriptionId); // Get custom fields data
-        console.log(data, 'data comesa logn');
 
         return {
             deviceIds: data,
@@ -453,7 +448,6 @@ const getCustomFields = async (subscriptionId) => {
         );
 
         const data = await response.json();
-        console.log(data, 'data before logn');
         return data; // Return the data
     } catch (error) {
         console.error('Error fetching services for device assignment:', error);
@@ -463,7 +457,6 @@ const getCustomFields = async (subscriptionId) => {
 
 const getSubDeviceCode = async (req, res) => {
     const { subscription_id } = req.params;
-    console.log(subscription_id, 'subscription id');
     const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
@@ -477,8 +470,6 @@ const getSubDeviceCode = async (req, res) => {
         });
 
         const data = await response.json();
-
-        console.log(data, 'a\data originla idss')
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
