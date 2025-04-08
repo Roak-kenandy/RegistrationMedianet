@@ -14,6 +14,6 @@ router.get('/getSubDeviceCode/:subscription_id', registerProfileController.getSu
 
 router.post('/mtvusers', registerProfileController.postRegisterProfile);
 
-router.post('/api/v1/log', registerProfileController.logsForMtvUsers);
+router.post('/log', registerProfileController.logsForMtvUsers);
 
 module.exports = router;
