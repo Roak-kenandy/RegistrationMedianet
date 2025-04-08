@@ -126,7 +126,7 @@
 /* Responsive Design remains the same */
 @media (max-width: 480px) {
     .welcome-text { font-size: 16px; top: 15px; }
-    .logo { max-width: 150px; top: 40px; }
+    .logo { max-width: 150px; top: 0px; }
     .logo-image { max-height: 60px; }
     .container-success { padding: 15px; }
     .title { font-size: 24px; }
@@ -150,6 +150,6 @@
 
 @media (min-width: 1201px) {
     .welcome-text { font-size: 20px; }
-    .logo { max-width: 250px; top: 50px; }
+    .logo { max-width: 130px; top: 0px; }
     .logo-image { max-height: 100px; }
 }
