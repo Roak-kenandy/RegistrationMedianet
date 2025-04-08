@@ -13,7 +13,7 @@ export const smsService = {
         throw new Error('SMS_CONFIG.BASE_URL is not defined');
       }
 
-      console.log('Sending OTP Request:');
+    console.log('Sending OTP Request:');
     console.log('URL:', SMS_CONFIG.BASE_URL);
     console.log('Headers:', smsHeaders);
     console.log('Body:', {

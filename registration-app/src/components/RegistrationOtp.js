@@ -70,10 +70,11 @@ const RegistrationOtp = () => {
   const sendOtp = async (phoneNumber) => {
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     console.log('Generated OTP:', newOtp);
+    logToServer('Generated OTP: ' + newOtp);
     setGeneratedOtp(newOtp);
 
     try {
-        console.log('Sending OTP to:', phoneNumber)
+    logToServer('Sending OTP to: ' + phoneNumber);
       await smsService.sendOtp(phoneNumber, newOtp);
       console.log('OTP sent successfully');
       setError('');
@@ -82,6 +83,21 @@ const RegistrationOtp = () => {
       console.error('Error sending OTP:', err);
       setError('Failed to send OTP. Please try again.');
       setGeneratedOtp('');
+    }
+  };
+
+  const logToServer = async (message) => {
+    try {
+      await fetch('https://mtvdev.medianet.mv/api/v1/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          message: message,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to send log to server:', err);
     }
   };
 

@@ -1,6 +1,7 @@
 const registerProfileService = require('../services/registerProfileService');
 const { v4: uuidv4 } = require('uuid');
 const fetch = require('node-fetch');
+const fs = require('fs');
 
 /**
  * Registers a new user profile
@@ -24,9 +25,9 @@ const postRegisterProfile = async (req, res) => {
             referralCode
         );
 
-        return res.status(201).json({ 
-            message: 'Profile registered successfully', 
-            data: result 
+        return res.status(201).json({
+            message: 'Profile registered successfully',
+            data: result
         });
     } catch (error) {
         console.error('Error registering profile:', error);
@@ -45,66 +46,66 @@ const DEFAULT_TAG_ID = '0c0d20c2-08e1-4483-bcbe-638608fedaba';
 const API_KEY = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
 const handleResponse = async (response, context) => {
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`${context} failed: ${error}`);
-  }
-  return response.json();
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`${context} failed: ${error}`);
+    }
+    return response.json();
 };
 
 const registerContactTag = async (contactId, tags = [DEFAULT_TAG_ID]) => {
-  try {
-    const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/tags`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api_key': API_KEY,
-      },
-      body: JSON.stringify({ tags }),
-    });
+    try {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/tags`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'api_key': API_KEY,
+            },
+            body: JSON.stringify({ tags }),
+        });
 
-    return handleResponse(response, `Tag registration for contact ${contactId}`);
-  } catch (error) {
-    console.error(`Tag registration error for contact ${contactId}:`, error);
-    throw error;
-  }
+        return handleResponse(response, `Tag registration for contact ${contactId}`);
+    } catch (error) {
+        console.error(`Tag registration error for contact ${contactId}:`, error);
+        throw error;
+    }
 };
 
 const postRegisterContact = async (req, res) => {
-  try {
-    const payload = req.body;
+    try {
+        const payload = req.body;
 
-    // Create contact
-    const contactResponse = await fetch(`${CRM_BASE_URL}/contacts`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api_key': API_KEY,
-      },
-      body: JSON.stringify(payload),
-    });
+        // Create contact
+        const contactResponse = await fetch(`${CRM_BASE_URL}/contacts`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'api_key': API_KEY,
+            },
+            body: JSON.stringify(payload),
+        });
 
-    const contactData = await handleResponse(contactResponse, 'Contact creation');
+        const contactData = await handleResponse(contactResponse, 'Contact creation');
 
-    // Add default tag
-    if (contactData?.id) {
-      await registerContactTag(contactData.id);
+        // Add default tag
+        if (contactData?.id) {
+            await registerContactTag(contactData.id);
+        }
+
+        return res.status(201).json({
+            id: contactData.id
+        });
+
+    } catch (error) {
+        console.error('Contact registration error:', error);
+        const statusCode = error.message.includes('failed') ? 400 : 500;
+        return res.status(statusCode).json({
+            success: false,
+            message: error.message || 'Internal server error'
+        });
     }
-
-    return res.status(201).json({
-        id: contactData.id
-      });
-
-  } catch (error) {
-    console.error('Contact registration error:', error);
-    const statusCode = error.message.includes('failed') ? 400 : 500;
-    return res.status(statusCode).json({
-      success: false,
-      message: error.message || 'Internal server error'
-    });
-  }
 };
 
 /**
@@ -471,7 +472,7 @@ const getSubDeviceCode = async (req, res) => {
 
         const data = await response.json();
 
-        console.log(data,'a\data originla idss')
+        console.log(data, 'a\data originla idss')
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
@@ -485,11 +486,31 @@ const getSubDeviceCode = async (req, res) => {
     }
 };
 
-module.exports = { 
-    postRegisterProfile, 
-    postDeviceToCRM, 
-    postAccount, 
+
+const logsForMtvUsers = async (req, res) => {
+    try {
+
+        const { timestamp, message } = req.body;
+        const logEntry = `${timestamp} - ${message}\n`;
+
+        fs.appendFile('/var/log/react-frontend.log', logEntry, (err) => {
+            if (err) console.error('Failed to write log:', err);
+        });
+
+        res.sendStatus(200);
+
+    }
+    catch (error) {
+        console.error('Error fetching subscription from CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+module.exports = {
+    postRegisterProfile,
+    postDeviceToCRM,
+    postAccount,
     getSubscriptionContacts,
     postRegisterContact,
-    getSubDeviceCode
+    getSubDeviceCode,
+    logsForMtvUsers
 };
