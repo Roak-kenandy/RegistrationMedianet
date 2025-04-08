@@ -21,7 +21,7 @@ const RegistrationPlan = () => {
   const plans = [
     {
       name: 'Free Trial',
-      duration: '30 Days',
+      duration: '10 Days',
       description: 'Try our service for 10 days at no cost',
       features: ['95+ Live Channels', '01 Mobile Device'],
       selectButton: 'Continue',
