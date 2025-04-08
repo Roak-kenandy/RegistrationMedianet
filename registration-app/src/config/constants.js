@@ -7,6 +7,14 @@ export const COUNTRY_DATA = [
     API_KEY: process.env.REACT_APP_API_KEY,
     LOCAL_URL: 'http://localhost:3004',
   };
+
+  export const MTV_CONFIG = {
+    BASE_URL: 'https://mtvdev.medianet.mv/api/v1',
+    HEADERS: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  };
   
   export const SMS_CONFIG = {
     BASE_URL: process.env.REACT_APP_SMS_URL,

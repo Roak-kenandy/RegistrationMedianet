@@ -16,4 +16,6 @@ router.post('/mtvusers', registerProfileController.postRegisterProfile);
 
 router.post('/log', registerProfileController.logsForMtvUsers);
 
+router.post('/sendOtp', registerProfileController.smsService);
+
 module.exports = router;

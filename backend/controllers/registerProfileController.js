@@ -3,6 +3,12 @@ const { v4: uuidv4 } = require('uuid');
 const fetch = require('node-fetch');
 const fs = require('fs');
 
+const smsHeaders = {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${process.env.REACT_APP_SMS_BEARER_TOKEN}`,
+  'User-Agent': 'insomnia/8.3.0',
+};
+
 /**
  * Registers a new user profile
  * @param {Object} req - Express request object
@@ -504,7 +510,33 @@ const logsForMtvUsers = async (req, res) => {
         console.error('Error fetching subscription from CRM:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-}
+};
+
+
+const smsService = async (req, res) => {
+    const { batch, message } = req.body;
+
+    try {
+        const response = await fetch(process.env.REACT_APP_SMS_URL, {
+            method: 'POST',
+            headers: smsHeaders,
+            body: JSON.stringify({
+                username: 'sms@medianet.mv',
+                access_key: process.env.REACT_APP_SMS_ACCESS_KEY,
+                message: message,
+                batch: batch,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send OTP');
+        }
+
+        return res.status(200).json({ message: 'OTP sent successfully', data: await response.json() });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
 module.exports = {
     postRegisterProfile,
     postDeviceToCRM,
@@ -512,5 +544,6 @@ module.exports = {
     getSubscriptionContacts,
     postRegisterContact,
     getSubDeviceCode,
-    logsForMtvUsers
+    logsForMtvUsers,
+    smsService
 };
