@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const mtvUserSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    phoneNumber: { type: String, required: true, unique: true },
+    phoneNumber: { type: String, required: true },
     countryCode: { type: String, required: true },
     referralCode: { type: String, required: false },
 }, { timestamps: true });
