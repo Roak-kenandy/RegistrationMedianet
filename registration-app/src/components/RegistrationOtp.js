@@ -22,12 +22,12 @@ const RegistrationOtp = () => {
   const inputRefs = useRef([]);
 
     // Check if required data is available
-    // useEffect(() => {
-    //   if (!phoneNumber || !formData) {
-    //     // If no phone number or form data, redirect to registration-medianet
-    //     navigate('/registration-medianet', { replace: true });
-    //   }
-    // }, [phoneNumber, formData, navigate]);
+    useEffect(() => {
+      if (!phoneNumber || !formData) {
+        // If no phone number or form data, redirect to registration-medianet
+        navigate('/registration-medianet', { replace: true });
+      }
+    }, [phoneNumber, formData, navigate]);
 
   // Resend countdown timer
   useEffect(() => {

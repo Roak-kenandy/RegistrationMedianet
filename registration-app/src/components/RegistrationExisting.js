@@ -10,12 +10,16 @@ import Popup from './Popup';
 const RegistrationExisting = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { data, phoneNumber, firstName, lastName } = location.state || { 
-        data: [], 
-        phoneNumber: null, 
-        firstName: null, 
-        lastName: null 
+
+    // Retrieve initial state from location.state or localStorage
+    const initialState = location.state || JSON.parse(localStorage.getItem('registrationState')) || {
+        data: [],
+        phoneNumber: null,
+        firstName: null,
+        lastName: null,
     };
+    const { data, phoneNumber, firstName, lastName } = initialState;
+
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
     const [loadingStates, setLoadingStates] = useState({});
@@ -23,8 +27,11 @@ const RegistrationExisting = () => {
     const [redirectAfterPopup, setRedirectAfterPopup] = useState(false);
 
     useEffect(() => {
-        // Check if required state is missing when accessing the route directly
-        if (!location.state || (!data.length && !phoneNumber)) {
+        // Persist the state to localStorage whenever it changes
+        localStorage.setItem('registrationState', JSON.stringify({ data: subscriptions, phoneNumber, firstName, lastName }));
+
+        // Check if required state is missing
+        if ((!data.length && !phoneNumber)) {
             navigate('/registration-medianet');
             return;
         }
@@ -33,13 +40,13 @@ const RegistrationExisting = () => {
         if (returningTo) {
             const updatedSubscriptions = subscriptions.map(sub => ({
                 ...sub,
-                state: 'churned'
+                state: 'churned',
             }));
             setSubscriptions(updatedSubscriptions);
             navigate(returningTo, { state: { data: updatedSubscriptions, phoneNumber, firstName, lastName } });
             localStorage.removeItem('returningTo');
         }
-    }, [subscriptions, navigate, phoneNumber, firstName, lastName, location.state, data]);
+    }, [subscriptions, navigate, phoneNumber, firstName, lastName, data]);
 
     const maskString = (str) => {
         if (!str || str.length < 2) return 'N/A';
@@ -103,7 +110,7 @@ const RegistrationExisting = () => {
                                         <p className="churned-message">
                                             You have already registered. You have to subscribe using the button below.
                                         </p>
-                                        <button 
+                                        <button
                                             className="action-button inactive"
                                             onClick={() => handleButtonClick(subscription, index)}
                                             disabled={loadingStates[index]}
@@ -136,7 +143,7 @@ const RegistrationExisting = () => {
                                             <span className="field-label">End Date</span>
                                             <span className="field-value">{subscription.end_date || 'N/A'}</span>
                                         </div>
-                                        <button 
+                                        <button
                                             className={`action-button ${subscription.state?.toLowerCase() || 'unknown'}`}
                                             onClick={() => handleButtonClick(subscription, index)}
                                             disabled={loadingStates[index]}
@@ -144,10 +151,10 @@ const RegistrationExisting = () => {
                                             {loadingStates[index] ? (
                                                 <span className="spinner-existing"></span>
                                             ) : (
-                                                subscription.state?.toLowerCase() === 'active' 
-                                                    ? 'Resend Login Details' 
-                                                    : subscription.state?.toLowerCase() === 'inactive' 
-                                                    ? 'Subscribe' 
+                                                subscription.state?.toLowerCase() === 'active'
+                                                    ? 'Resend Login Details'
+                                                    : subscription.state?.toLowerCase() === 'inactive'
+                                                    ? 'Subscribe'
                                                     : 'N/A'
                                             )}
                                         </button>
