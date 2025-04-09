@@ -1,3 +1,4 @@
+/* RegistrationMedianet.css */
 * {
     margin: 0;
     padding: 0;
@@ -34,10 +35,6 @@
     display: block;
     object-fit: contain;
     max-height: 80px;
-}
-
-.highlight {
-    color: #FFD700;
 }
 
 .title {
@@ -87,7 +84,14 @@
     gap: 10px;
     width: 100%;
     flex-wrap: nowrap;
-    /* Always keep them on same line */
+}
+
+.referral-container {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: nowrap;
+    align-items: end;
 }
 
 .custom-select-wrapper {
@@ -118,7 +122,7 @@
     background-color: transparent;
     border: none;
     border-radius: 8px;
-    color: transparent;
+    color: black;
     font-size: clamp(14px, 2.5vw, 16px);
     outline: none;
     transition: all 0.3s ease;
@@ -128,11 +132,75 @@
     z-index: 1;
 }
 
+.referral-select-container {
+    position: relative;
+    min-width: 100px;
+    flex: 0 0 auto;
+    width: 23%;
+}
+
+.select-label {
+    color: #fff;
+    font-size: clamp(12px, 2vw, 14px);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.referral-select {
+    width: 100%;
+    padding: clamp(10px, 2vw, 15px);
+    background-color: #3A4445;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: #fff;
+    font-size: clamp(14px, 2.5vw, 16px);
+    outline: none;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.referral-select:hover {
+    background-color: #4A5556;
+}
+
+.referral-select:focus {
+    border-color: #FFD700;
+    background-color: #4A5556;
+}
+
 .phone-input {
     flex: 1;
-    /* Allow phone input to take remaining space */
     min-width: 0;
-    /* Allow it to shrink if needed */
+}
+
+.referral-input {
+    flex: 1;
+    position: relative;
+}
+
+.referral-input-field {
+    padding-top: 20px;
+    padding-bottom: 8px;
+}
+
+.floating-label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: clamp(14px, 2.5vw, 16px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.floating-label.active {
+    top: 8px;
+    font-size: clamp(10px, 2vw, 12px);
+    color: #FFD700;
 }
 
 .error {
@@ -190,35 +258,30 @@
     color: transparent;
     background-color: #FFD700;
     cursor: not-allowed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.spinner {
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.spinner-medianet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top: 2px solid #1A2526;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
 }
 
 @keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Ensure disabled state doesn't conflict with loading */
-.submit-button:disabled.loading {
-    background-color: #FFD700;
-    /* Keep gold color during loading */
-    box-shadow: none;
-}
-
-/* Mobile Styles */
 @media (max-width: 480px) {
     .logo {
         max-width: 150px;
@@ -237,38 +300,36 @@
         max-width: 100%;
     }
 
-    /* These settings ensure the country code and phone number stay on same line */
-    .phone-container {
+    .phone-container,
+    .referral-container {
         display: flex;
         gap: 8px;
-        /* Slightly reduced gap for mobile */
         width: 100%;
         flex-wrap: nowrap;
     }
 
-    .custom-select-wrapper {
+    .custom-select-wrapper,
+    .referral-select-container {
         min-width: 90px;
         width: 23%;
     }
 
     .input,
     .custom-select-display,
-    .select {
+    .select,
+    .referral-select {
         padding: 10px;
-        /* Ensure consistent padding */
         font-size: 14px;
-        /* Slightly smaller font on mobile */
     }
 }
 
-/* Tablet Styles */
 @media (min-width: 481px) and (max-width: 768px) {
     .logo {
         max-width: 180px;
     }
 
     .logo-image {
-        max-height: 100px; /* Updated from 70px to 100px */
+        max-height: 100px;
     }
 
     .form {
@@ -276,7 +337,6 @@
     }
 }
 
-/* Small Desktop Styles */
 @media (min-width: 769px) and (max-width: 1200px) {
     .logo {
         max-width: 200px;
@@ -287,14 +347,13 @@
     }
 }
 
-/* Large Desktop Styles */
 @media (min-width: 1201px) {
     .logo {
         max-width: 130px;
     }
 
     .logo-image {
-        max-height: 120px; /* Updated from 100px to 120px */
+        max-height: 120px;
     }
 
     .form {
@@ -306,7 +365,6 @@
     }
 }
 
-/* Popup Styles */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -321,12 +379,12 @@
 }
 
 .popup-content {
-    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
-    color: #333;
+    color: white;
+    background-color: #12203b;
 }
 
 .popup-header {

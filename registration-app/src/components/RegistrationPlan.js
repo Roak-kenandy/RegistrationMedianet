@@ -9,36 +9,38 @@ import '../styles/RegistrationPlan.css';
 const RegistrationPlan = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [formData, setFormData] = useState(location.state?.formData || {});
+  const [formData, setFormData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (location.state?.formData) {
-      setFormData(location.state.formData);
+    if (!location.state?.formData) {
+      navigate('/registration-medianet', { replace: true });
+      return;
     }
-  }, [location.state]);
+    setFormData(location.state.formData);
+  }, [location.state, navigate]);
 
   const plans = [
     {
       name: 'Free Trial',
-      duration: '10 Days',
-      description: 'Try our service for 10 days at no cost',
+      duration: '30 Days',
       features: ['95+ Live Channels', '01 Mobile Device'],
       selectButton: 'Continue',
     },
   ];
 
-
   const handleConfirm = async () => {
     setIsLoading(true);
     let success = false;
     let deviceCode = 'N/A';
+
     try {
+      if (!formData || Object.keys(formData).length === 0) {
+        throw new Error('Missing registration data');
+      }
+
       const contactId = await registrationService.registerContact(formData);
       if (!contactId) throw new Error('Failed to register contact');
-
-      // const tagSuccess = await registrationService.registerTag(contactId);
-      // if (!tagSuccess) throw new Error('Failed to register tag');
 
       const deviceSuccess = await registrationService.createVirtualDevice(contactId);
       if (!deviceSuccess) throw new Error('Failed to create virtual device');
@@ -50,26 +52,28 @@ const RegistrationPlan = () => {
       if (!subscriptionSuccess) throw new Error('Failed to get subscription contacts');
 
       const subscriptionDeviceCode = await registrationService.getSubDeviceCode(subscriptionSuccess.subscription_id);
-      if (!subscriptionDeviceCode) throw new Error('Failed to get subscription contacts');
-      deviceCode = subscriptionDeviceCode.content[0]?.custom_fields?.find(field => field.key === 'code')?.value ||'N/A';
-
-
+      if (!subscriptionDeviceCode) throw new Error('Failed to get subscription device code');
+      deviceCode = subscriptionDeviceCode.content[0]?.custom_fields?.find(field => field.key === 'code')?.value || 'N/A';
 
       await registrationService.postMtvUser(formData);
       success = true;
-
-      setIsLoading(false);
-
-      navigate('/registration-success', { state: { formData, deviceCode } });
     } catch (error) {
-      setIsLoading(false);
+      console.error('Registration error:', error);
       success = false;
-    }
-    finally {
+    } finally {
       setIsLoading(false);
-      navigate('/registration-success', { state: { formData, success, deviceCode } });
+      localStorage.setItem('medianetCompleted', 'true');
+      navigate('/registration-success', {
+        state: { formData, success, deviceCode },
+        replace: true,
+      });
     }
   };
+
+  if (!formData || Object.keys(formData || {}).length === 0) {
+    console.log('Not rendering, waiting for redirect');
+    return null;
+  }
 
   return (
     <div className="container-plan">
@@ -81,7 +85,6 @@ const RegistrationPlan = () => {
           <div key={index} className="plan-card">
             <h2 className="plan-name">{plan.name}</h2>
             <p className="plan-duration">{plan.duration}</p>
-            <p className="plan-description">{plan.description}</p>
             <ul className="plan-features">
               {plan.features.map((feature, idx) => (
                 <li key={idx}>{feature}</li>
@@ -99,11 +102,19 @@ const RegistrationPlan = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                <div className="spinner"></div>
+                <div className="spinner-parent">
+                  <div className="spinner"></div>
+                </div>
               ) : (
-                <span>{plan.selectButton}</span>
+                'Continue'
               )}
             </button>
+            {/* Inline loading message */}
+            {isLoading && (
+              <p className="loading-message">
+                Processing your registration... Please don’t refresh the page. This should take less than a minute.
+              </p>
+            )}
           </div>
         ))}
       </div>

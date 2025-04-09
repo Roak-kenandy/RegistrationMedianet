@@ -5,7 +5,7 @@
     box-sizing: border-box;
 }
 
-.container-success {
+.reg-success-wrapper {
     background-color: #12203b;
     min-height: 100vh;
     width: 100%;
@@ -19,17 +19,17 @@
     text-align: center;
 }
 
-.welcome-text {
+.reg-success-greeting {
     font-size: clamp(16px, 3vw, 20px);
     color: #fff;
     margin-bottom: 10px;
     position: absolute;
-    top: 20px;
+    top: 20px; /* Remains at the top */
 }
 
-.logo {
+.reg-success-brand-image-container {
     position: absolute;
-    top: 50px;
+    top: 60px; /* Moved down from 50px to create space below "Welcome To" */
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -38,7 +38,7 @@
     z-index: 1;
 }
 
-.logo-image {
+.reg-success-brand-image {
     width: 100%;
     height: auto;
     display: block;
@@ -46,14 +46,14 @@
     max-height: 80px;
 }
 
-.title {
+.reg-success-heading {
     font-size: clamp(24px, 6vw, 40px);
     margin-bottom: clamp(10px, 2vw, 20px);
     text-align: center;
     font-weight: bold;
 }
 
-.subtitle {
+.reg-success-message {
     font-size: clamp(14px, 3vw, 18px);
     color: #ccc;
     margin-bottom: clamp(20px, 4vw, 40px);
@@ -62,7 +62,7 @@
     max-width: 600px;
 }
 
-.login-details-box {
+.reg-success-details-container {
     background-color: #3a4445;
     border-radius: 12px;
     padding: clamp(15px, 3vw, 25px);
@@ -74,19 +74,19 @@
     margin-bottom: clamp(20px, 4vw, 40px);
 }
 
-.box-title {
+.reg-success-details-title {
     font-size: clamp(18px, 4vw, 24px);
     color: #fff;
     margin-bottom: clamp(10px, 2vw, 15px);
 }
 
-.box-text {
+.reg-success-details-text {
     font-size: clamp(14px, 3vw, 16px);
     color: #ddd;
     margin: clamp(5px, 1vw, 10px) 0;
 }
 
-.back-to-login-btn {
+.reg-success-action-button {
     padding: clamp(8px, 2vw, 12px);
     background-color: #ffd700;
     border: none;
@@ -100,13 +100,13 @@
     margin-top: clamp(10px, 2vw, 15px);
 }
 
-.back-to-login-btn:hover {
+.reg-success-action-button:hover {
     background-color: #e6c200;
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
 
-.footer-text {
+.reg-success-footer-note {
     font-size: clamp(14px, 3vw, 18px);
     color: #ffd700;
     text-align: center;
@@ -123,31 +123,31 @@
     }
 }
 
-/* Responsive Design with updated logo sizes */
+/* Responsive Design with updated image sizes */
 @media (max-width: 480px) {
-    .welcome-text { font-size: 16px; top: 15px; }
-    .logo { max-width: 150px; top: 0px; }
-    .logo-image { max-height: 60px; }
-    .container-success { padding: 15px; }
-    .title { font-size: 24px; }
-    .subtitle { font-size: 14px; }
-    .login-details-box { padding: 15px; }
-    .back-to-login-btn { width: 200px; }
+    .reg-success-greeting { font-size: 16px; top: 15px; }
+    .reg-success-brand-image-container { max-width: 150px; top: 50px; } /* Adjusted from 0px to 50px */
+    .reg-success-brand-image { max-height: 60px; }
+    .reg-success-wrapper { padding: 15px; }
+    .reg-success-heading { font-size: 24px; }
+    .reg-success-message { font-size: 14px; }
+    .reg-success-details-container { padding: 15px; }
+    .reg-success-action-button { width: 200px; }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
-    .welcome-text { font-size: 18px; }
-    .logo { max-width: 180px; top: 45px; }
-    .logo-image { max-height: 100px; } /* Updated from 70px to 100px */
+    .reg-success-greeting { font-size: 18px; }
+    .reg-success-brand-image-container { max-width: 180px; top: 70px; } /* Adjusted from 45px to 70px */
+    .reg-success-brand-image { max-height: 100px; }
 }
 
 @media (min-width: 769px) and (max-width: 1200px) {
-    .welcome-text { font-size: 20px; }
-    .logo { max-width: 200px; top: 50px; }
+    .reg-success-greeting { font-size: 20px; }
+    .reg-success-brand-image-container { max-width: 200px; top: 80px; } /* Adjusted from 50px to 80px */
 }
 
 @media (min-width: 1201px) {
-    .welcome-text { font-size: 20px; }
-    .logo { max-width: 130px; top: 0px; }
-    .logo-image { max-height: 120px; } /* Updated from 100px to 120px */
+    .reg-success-greeting { font-size: 20px; }
+    .reg-success-brand-image-container { max-width: 130px; top: 50px; } /* Adjusted from 0px to 50px */
+    .reg-success-brand-image { max-height: 120px; }
 }

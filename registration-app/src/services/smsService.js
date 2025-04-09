@@ -48,7 +48,7 @@ const smsHeaders = {
 
 
 export const smsService = {
-    async sendOtp(phoneNumber, otp) {
+    async sendOtp(phoneNumber, message) {
         //${MTV_CONFIG.BASE_URL}
       try {
         const response = await fetch(`${MTV_CONFIG.BASE_URL}/sendOtp`, {
@@ -56,7 +56,7 @@ export const smsService = {
           headers: MTV_CONFIG.HEADERS,
           body: JSON.stringify({
             username: SMS_CONFIG.USERNAME,
-            message: `Your OTP is: ${otp}`,
+            message: message,
             batch: phoneNumber,
           }),
         });

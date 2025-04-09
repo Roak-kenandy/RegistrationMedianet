@@ -528,6 +528,188 @@ const smsService = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+// Helper function to fetch tags for a given contact ID
+const fetchContactTags = async (contactId, apiKey) => {
+    const tagsUrl = `https://app.crm.com/backoffice/v2/contacts/${contactId}/tags`;
+    const response = await fetch(tagsUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api_key': apiKey,
+        },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to fetch tags for contact ${contactId}: ${response.status}`);
+    }
+    return data;
+};
+
+// Helper function to fetch subscriptions for a given contact ID
+const fetchContactSubscriptions = async (contactId, apiKey) => {
+    const subscriptionsUrl = `https://app.crm.com/backoffice/v2/contacts/${contactId}/subscriptions?size=100&page=1&include_terms=true&include_billing_info=true&include_future_info=true`;
+    const response = await fetch(subscriptionsUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api_key': apiKey,
+        },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to fetch subscriptions for contact ${contactId}: ${response.status}`);
+    }
+    return data;
+};
+
+// Helper function to fetch devices for a given subscription ID
+const fetchSubscriptionDevices = async (subscriptionId, apiKey) => {
+    const devicesUrl = `https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`;
+    const response = await fetch(devicesUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api_key': apiKey,
+        },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(`Failed to fetch devices for subscription ${subscriptionId}: ${response.status}`);
+    }
+    return data;
+};
+
+// Helper function to format timestamp to human-readable date (e.g., "1 Jan 2025")
+const formatDate = (timestamp) => {
+    if (!timestamp) return null;
+    const date = new Date(timestamp * 1000); // Assuming timestamp is in seconds
+    return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+};
+
+// Main function to get contact details, filter by "OTT" tag, and return simplified data
+const getContactDetails = async (req, res) => {
+    // Extract parameters from req.params
+    const { phone_number } = req.params;
+    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
+
+    try {
+        // Construct the query string with the parameters for the first API call
+        const queryParams = new URLSearchParams({
+            phone_number: phone_number || '',
+        }).toString();
+
+        // First API call to get contact details
+        const contactsUrl = `https://app.crm.com/backoffice/v2/contacts?${queryParams}`;
+        const contactsResponse = await fetch(contactsUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'api_key': apiKey,
+            },
+        });
+
+        const contactsData = await contactsResponse.json();
+
+        if (!contactsResponse.ok) {
+            return res.status(contactsResponse.status).json({ error: contactsData });
+        }
+
+        // Check if there is content in the response
+        if (contactsData.content && contactsData.content.length > 0) {
+            // Array to store simplified subscription and device data
+            const subscriptionsWithDetails = [];
+
+            // Loop through each contact and fetch their tags
+            for (const contact of contactsData.content) {
+                const contactId = contact.id;
+
+                try {
+                    const tagsData = await fetchContactTags(contactId, apiKey);
+                    // Check if the tags include "OTT"
+                    const hasOTTTag = tagsData.content && tagsData.content.some(tag => tag.name === "OTT");
+
+                    if (hasOTTTag) {
+                        // Fetch subscriptions for contacts with "OTT" tag
+                        try {
+                            const subscriptionsData = await fetchContactSubscriptions(contactId, apiKey);
+
+                            if (subscriptionsData.content && subscriptionsData.content.length > 0) {
+                                for (const subscription of subscriptionsData.content) {
+                                    const subscriptionId = subscription.id;
+
+                                    try {
+                                        const devicesData = await fetchSubscriptionDevices(subscriptionId, apiKey);
+                                        const deviceValues = devicesData.content.map(device => {
+                                            // Extract only the "code" value from custom_fields
+                                            const codeField = device.custom_fields.find(field => field.key === "code");
+                                            return codeField ? codeField.value : null;
+                                        }).filter(value => value !== null); // Remove null values
+
+                                        subscriptionsWithDetails.push({
+                                            state: subscription.state,
+                                            start_date: formatDate(subscription.first_activation_date),
+                                            end_date: formatDate(subscription.billing_info.bill_up_date),
+                                            value: deviceValues.length > 0 ? deviceValues[0] : null, // Take first value if exists
+                                        });
+                                    } catch (error) {
+                                        console.error(`Error fetching devices for subscription ${subscriptionId}:`, error);
+                                        subscriptionsWithDetails.push({
+                                            state: subscription.state,
+                                            start_date: formatDate(subscription.first_activation_date),
+                                            end_date: formatDate(subscription.billing_info.bill_up_date),
+                                            value: null,
+                                        });
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`Error fetching subscriptions for contact ${contactId}:`, error);
+                            subscriptionsWithDetails.push({
+                                state: null,
+                                start_date: null,
+                                end_date: null,
+                                value: null,
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching tags for contact ${contactId}:`, error);
+                    subscriptionsWithDetails.push({
+                        state: null,
+                        start_date: null,
+                        end_date: null,
+                        value: null,
+                    });
+                }
+            }
+
+            // Return simplified data
+            if (subscriptionsWithDetails.length > 0) {
+                return res.status(200).json(subscriptionsWithDetails); // Return array directly
+            } else {
+                return res.status(200).json({ message: 'No subscriptions with "OTT" tag found for the given phone number' });
+            }
+        } else {
+            return res.status(200).json({ message: 'No contacts found for the given phone number' });
+        }
+    } catch (error) {
+        console.error('Error fetching data from CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     postRegisterProfile,
     postDeviceToCRM,
@@ -536,5 +718,6 @@ module.exports = {
     postRegisterContact,
     getSubDeviceCode,
     logsForMtvUsers,
-    smsService
+    smsService,
+    getContactDetails
 };

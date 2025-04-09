@@ -178,6 +178,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+.select-button:disabled {
+    background-color: #666;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+    padding: clamp(8px, 2vw, 12px) !important;
 }
 
 .select-button:hover {
@@ -187,12 +196,28 @@
 }
 
 .spinner {
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top: 2px solid #1A2526;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1;
+}
+
+.spinner-parent{
+    padding: 6px;
+}
+
+.select-button.loading {
+    color: transparent; /* Hide the button text during loading */
+    background-color: #FFD700; /* Maintain the background color */
+    cursor: not-allowed; /* Indicate loading state */
+    padding: clamp(8px, 2vw, 12px);
 }
 
 @keyframes spin {
@@ -380,3 +405,26 @@
 .popup-cancel-btn:hover {
     background-color: #bbb;
 }
+
+/* Add this to your existing RegistrationPlan.css */
+
+.loading-message {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: #FFD700; /* Matches the highlight color for consistency */
+    text-align: center;
+    margin-top: clamp(10px, 2vw, 15px);
+    padding: 0 clamp(5px, 1vw, 10px);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Ensure the existing fadeIn animation is reused */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

@@ -162,4 +162,22 @@ export const registrationService = {
       throw error;
     }
   },
+
+  async verifyPhoneNumber(phoneNumber) {
+    try {
+      const response = await fetch(`https://mtvdev.medianet.mv/api/v1/contact-details/${phoneNumber}`, {
+        method: 'GET',
+        headers: mtvHeaders,
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(`API error: ${result?.error || 'Unknown error'}`);
+      }
+      return result;
+    } catch (error) {
+      console.error('Error fetching subscription contacts:', error);
+      throw error;
+    }
+  },
 };

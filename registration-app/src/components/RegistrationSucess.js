@@ -13,10 +13,21 @@ const RegistrationSuccess = () => {
   const [deviceCode, setDeviceCode] = useState(location.state?.deviceCode || 'N/A');
   const [success, setSuccess] = useState(location.state?.success || false);
 
+    useEffect(() => {
+      // Log current path for debugging
+      // If no formData is provided, redirect immediately
+      if (!location.state?.formData) {
+        navigate('/registration-medianet', { replace: true });
+        return;
+      }
+  
+      // Set formData if it exists
+      setFormData(location.state.formData);
+    }, [location.state, navigate]);
+
   // Consolidated useEffect to handle all state updates
   useEffect(() => {
     if (!location.state) {
-      // Do nothing or show an error message instead of redirecting
       setSuccess(false);
     } else {
       setFormData(location.state.formData || {});
@@ -35,38 +46,38 @@ const RegistrationSuccess = () => {
   };
 
   return (
-    <div className="container-success">
-      <div className="welcome-text">Welcome To</div>
-      <div className="logo">
-        <img src={logoImage} alt="Medianet Logo" className="logo-image" />
+    <div className="reg-success-wrapper">
+      <div className="reg-success-greeting">Welcome To</div>
+      <div className="reg-success-brand-image-container">
+        <img src={logoImage} alt="Medianet Brand" className="reg-success-brand-image" />
       </div>
-      <h1 className="title">
+      <h1 className="reg-success-heading">
         {success ? 'Registration Successful' : 'Registration Failed'}
       </h1>
-      <p className="subtitle">
+      <p className="reg-success-message">
         {success
           ? 'Find below your login details. The login details have also been sent to your mobile number.'
           : 'There was an issue with your registration. Please try again.'}
       </p>
       
       {success && (
-        <div className="login-details-box">
-          <h2 className="box-title">Login Details</h2>
-          <p className="box-text">Service Number: {loginDetails.serviceNumber}</p>
-          <p className="box-text">Password: {loginDetails.password}</p>
-          <button className="back-to-login-btn" onClick={handleBackToLogin}>
+        <div className="reg-success-details-container">
+          <h2 className="reg-success-details-title">Login Details</h2>
+          <p className="reg-success-details-text">Service Number: {loginDetails.serviceNumber}</p>
+          <p className="reg-success-details-text">Password: {loginDetails.password}</p>
+          {/* <button className="reg-success-action-button" onClick={handleBackToLogin}>
             Go back to login page
-          </button>
+          </button> */}
         </div>
       )}
       
       {!success && (
-        <button className="back-to-login-btn" onClick={handleBackToLogin}>
+        <button className="reg-success-action-button" onClick={handleBackToLogin}>
           Try Again
         </button>
       )}
       
-      <p className="footer-text">
+      <p className="reg-success-footer-note">
         {success ? 'Enjoy your world of Entertainment' : 'Medianet Entertainment'}
       </p>
     </div>

@@ -32,9 +32,9 @@ const Confirmation = () => {
     const planDetails = {
         'Free Trial': {
             name: 'Free Trial',
-            duration: '10 Days',
+            duration: '30 Days',
             price: 'Free',
-            description: 'Try our service for 10 days at no cost',
+            description: 'Try our service for 30 days at no cost',
             nextStep: 'Start your free trial now!',
         },
     };
