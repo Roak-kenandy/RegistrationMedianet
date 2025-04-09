@@ -215,7 +215,7 @@ const postSubscription = async (contactId, accountId) => {
         scheduled_date: null,
         services: [{
             price_terms_id: '1187c08d-2795-4c8e-84b7-75a31e8e7c9d',
-            product_id: 'f6b15e20-8309-454a-8fb0-10b73ec785c4',
+            product_id: 'babe5663-c577-4e85-b30b-06c961232853',
             quantity: 1,
         }],
     };
