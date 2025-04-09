@@ -145,6 +145,7 @@ export const registrationService = {
         phoneNumber: formData.phoneNumber,
         countryCode: 'MDV',
         referralCode: formData.referralCode,
+        referralType: formData.referralType
       };
       const response = await fetch('https://mtvdev.medianet.mv/api/v1/mtvusers', {
         method: 'POST',

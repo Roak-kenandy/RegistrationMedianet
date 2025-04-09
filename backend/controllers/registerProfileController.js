@@ -17,7 +17,7 @@ const smsHeaders = {
  */
 const postRegisterProfile = async (req, res) => {
     try {
-        const { firstName, lastName, phoneNumber, countryCode, referralCode } = req.body;
+        const { firstName, lastName, phoneNumber, countryCode, referralCode, referralType } = req.body;
 
         if (!firstName || !lastName || !phoneNumber || !countryCode) {
             return res.status(400).json({ message: 'All required fields must be provided' });
@@ -28,7 +28,8 @@ const postRegisterProfile = async (req, res) => {
             lastName,
             phoneNumber,
             countryCode,
-            referralCode
+            referralCode,
+            referralType
         );
 
         return res.status(201).json({
