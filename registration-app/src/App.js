@@ -143,8 +143,9 @@ function NavigationController() {
       window.location.href = '/registration-medianet';
     }
     
-    // Prevent back navigation for specified routes
+    // Prevent back navigation for specified routes including registration-medianet
     const noBackRoutes = [
+      '/registration-medianet',  // Added this route
       '/registration-plan', 
       '/registration-success', 
       '/registration-existing'
@@ -155,8 +156,14 @@ function NavigationController() {
       window.history.pushState(null, null, location.pathname);
       
       const handlePopState = (event) => {
-        // Force redirect to medianet on back button
-        window.location.href = '/registration-medianet';
+        // When on registration-medianet and trying to go back
+        if (location.pathname === '/registration-medianet') {
+          // Stay on registration-medianet by pushing the state again
+          window.history.pushState(null, null, '/registration-medianet');
+        } else {
+          // For other noBackRoutes, redirect to medianet
+          window.location.href = '/registration-medianet';
+        }
         // Prevent default back behavior
         event.preventDefault();
       };
