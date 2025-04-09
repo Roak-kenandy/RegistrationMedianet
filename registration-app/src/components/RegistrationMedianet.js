@@ -256,6 +256,7 @@ const RegistrationMedianet = () => {
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     className="input referral-input-field"
+                                    disabled={!formData.referralType}
                                 />
                             </div>
                         </div>
