@@ -1,4 +1,3 @@
-// RegistrationMedianet.jsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -139,125 +138,143 @@ const RegistrationMedianet = () => {
                 <div className="logo">
                     <img src={logoImage} alt="Medianet Logo" className="logo-image" />
                 </div>
-                <h1 className="title">Register Now!</h1>
-                <form onSubmit={handleSubmit} className="form">
-                    <div className="input-container">
-                        <input
-                            type="text"
-                            name="firstName"
-                            placeholder="First Name *"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={`input ${touched.firstName && errors.firstName ? 'error-border' : ''}`}
-                        />
-                        {touched.firstName && errors.firstName && (
-                            <span className="error">{errors.firstName}</span>
-                        )}
-                    </div>
 
-                    <div className="input-container">
-                        <input
-                            type="text"
-                            name="lastName"
-                            placeholder="Last Name *"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className={`input ${touched.lastName && errors.lastName ? 'error-border' : ''}`}
-                        />
-                        {touched.lastName && errors.lastName && (
-                            <span className="error">{errors.lastName}</span>
-                        )}
-                    </div>
-
-                    <div className="phone-container">
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display">
-                                {selectedCountry ? `${selectedCountry.flag} ${selectedCountry.phoneCode}` : 'Select Country'}
-                            </div>
-                            <select
-                                name="countryCode"
-                                value={formData.countryCode}
-                                onChange={handleChange}
-                                className="select"
-                            >
-                                {COUNTRY_DATA.map(country => (
-                                    <option key={country.code} value={country.code}>
-                                        {`${country.flag} ${country.name} (${country.phoneCode})`}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="input-container phone-input">
-                            <input
-                                type="tel"
-                                name="phoneNumber"
-                                placeholder="Phone Number *"
-                                value={formData.phoneNumber}
-                                onChange={handleChange}
-                                maxLength={phoneLength}
-                                onBlur={handleBlur}
-                                className={`input ${touched.phoneNumber && errors.phoneNumber ? 'error-border' : ''}`}
-                            />
-                            {touched.phoneNumber && errors.phoneNumber && (
-                                <span className="error">{errors.phoneNumber}</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="referral-container">
-                        <div className="referral-select-container">
-                            <label className="select-label">Referral Type</label>
-                            <select
-                                name="referralType"
-                                id="referralType"
-                                value={formData.referralType}
-                                onChange={handleChange}
-                                className="referral-select"
-                            >
-                                <option value="">Select...</option>
-                                <option value="Employee">Employee</option>
-                                <option value="Dealer">Dealer</option>
-                            </select>
-                        </div>
-                        <div className="input-container referral-input">
-                            <label
-                                className={`floating-label ${formData.referralCode ? 'active' : ''}`}
-                                htmlFor="referralCode"
-                            >
-                                Referral Code
-                            </label>
+                {/* Mobile Form Container (shown below 992px) */}
+                <div className="mobile-form-container">
+                    <h1 className="title">Register Now!</h1>
+                    <form onSubmit={handleSubmit} className="form">
+                        <div className="input-container">
                             <input
                                 type="text"
-                                name="referralCode"
-                                id="referralCode"
-                                value={formData.referralCode}
+                                name="firstName"
+                                placeholder="First Name *"
+                                value={formData.firstName}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                className="input referral-input-field"
+                                className={`input ${touched.firstName && errors.firstName ? 'error-border' : ''}`}
                             />
+                            {touched.firstName && errors.firstName && (
+                                <span className="error">{errors.firstName}</span>
+                            )}
+                        </div>
+
+                        <div className="input-container">
+                            <input
+                                type="text"
+                                name="lastName"
+                                placeholder="Last Name *"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                className={`input ${touched.lastName && errors.lastName ? 'error-border' : ''}`}
+                            />
+                            {touched.lastName && errors.lastName && (
+                                <span className="error">{errors.lastName}</span>
+                            )}
+                        </div>
+
+                        <div className="phone-container">
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display">
+                                    {selectedCountry ? `${selectedCountry.flag} ${selectedCountry.phoneCode}` : 'Select Country'}
+                                </div>
+                                <select
+                                    name="countryCode"
+                                    value={formData.countryCode}
+                                    onChange={handleChange}
+                                    className="select"
+                                >
+                                    {COUNTRY_DATA.map(country => (
+                                        <option key={country.code} value={country.code}>
+                                            {`${country.flag} ${country.name} (${country.phoneCode})`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="input-container phone-input">
+                                <input
+                                    type="tel"
+                                    name="phoneNumber"
+                                    placeholder="Phone Number *"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    maxLength={phoneLength}
+                                    onBlur={handleBlur}
+                                    className={`input ${touched.phoneNumber && errors.phoneNumber ? 'error-border' : ''}`}
+                                />
+                                {touched.phoneNumber && errors.phoneNumber && (
+                                    <span className="error">{errors.phoneNumber}</span>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="referral-container">
+                            <div className="referral-select-container">
+                                <label className="select-label">Referral Type</label>
+                                <select
+                                    name="referralType"
+                                    id="referralType"
+                                    value={formData.referralType}
+                                    onChange={handleChange}
+                                    className="referral-select"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="Employee">Employee</option>
+                                    <option value="Dealer">Dealer</option>
+                                </select>
+                            </div>
+                            <div className="input-container referral-input">
+                                <label
+                                    className={`floating-label ${formData.referralCode ? 'active' : ''}`}
+                                    htmlFor="referralCode"
+                                >
+                                    Referral Code
+                                </label>
+                                <input
+                                    type="text"
+                                    name="referralCode"
+                                    id="referralCode"
+                                    value={formData.referralCode}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    className="input referral-input-field"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="terms-container">
+                            <button
+                                type="submit"
+                                disabled={!isFormValid || isLoading}
+                                className={`submit-button ${isLoading ? 'loading' : ''}`}
+                            >
+                                {isLoading ? (
+                                    <div className="spinner-medianet"></div>
+                                ) : (
+                                    'Continue'
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Desktop Contact Container (shown 992px and up) */}
+                <div className="desktop-contact-container">
+                    <h1 className="title">Medianet Registration</h1>
+                    <div className="contact-info">
+                        <p>Medianet Registration Portal will be LIVE soon! </p>
+                        <p>Meanwhile, for registration and queries contact us at:</p>
+                        <div className="contact-details">
+                            <p><strong>Phone:</strong> 332-0800</p>
+                            <p><strong>Email:</strong> support@medianet.mv</p>
                         </div>
                     </div>
+                </div>
 
-                    <div className="terms-container">
-                        <button
-                            type="submit"
-                            disabled={!isFormValid || isLoading}
-                            className={`submit-button ${isLoading ? 'loading' : ''}`}
-                        >
-                            {isLoading ? (
-                                <div className="spinner-medianet"></div>
-                            ) : (
-                                'Continue'
-                            )}
-                        </button>
-                    </div>
-                </form>
+                {showPopup && (
+                    <Popup message={popupMessage} onClose={() => setShowPopup(false)} />
+                )}
             </div>
-            {showPopup && (
-                <Popup message={popupMessage} onClose={() => setShowPopup(false)} />
-            )}
         </div>
     );
 };

@@ -214,8 +214,8 @@ const postSubscription = async (contactId, accountId) => {
         account_id: accountId,
         scheduled_date: null,
         services: [{
-            price_terms_id: '1187c08d-2795-4c8e-84b7-75a31e8e7c9d',
-            product_id: 'f6b15e20-8309-454a-8fb0-10b73ec785c4',
+            price_terms_id: 'e9d6936f-5ec1-4bbf-bc22-4e5668ddbb97',
+            product_id: 'babe5663-c577-4e85-b30b-06c961232853',
             quantity: 1,
         }],
     };
@@ -231,8 +231,11 @@ const postSubscription = async (contactId, accountId) => {
             body: JSON.stringify(payload),
         });
 
+        console.log(await response.json(),'response from crm')
+
         await response.json();
     } catch (error) {
+        console.log(error,'error getting response')
         console.error('Error creating subscription in CRM:', error);
     }
 };
@@ -252,6 +255,8 @@ const getSubscriptionContacts = async (req, res) => {
         });
 
         const data = await response.json();
+
+        console.log(data,'data comes with new')
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
