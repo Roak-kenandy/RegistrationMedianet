@@ -13,23 +13,20 @@ const RegistrationOtp = () => {
   
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
-  const [timer, setTimer] = useState(60); // Resend timer
-  const [otpExpirationTimer, setOtpExpirationTimer] = useState(60); // OTP validity timer
+  const [timer, setTimer] = useState(60);
+  const [otpExpirationTimer, setOtpExpirationTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [isOtpExpired, setIsOtpExpired] = useState(false);
   const hasSentInitialOtp = useRef(false);
   const inputRefs = useRef([]);
 
-    // Check if required data is available
-    useEffect(() => {
-      if (!phoneNumber || !formData) {
-        // If no phone number or form data, redirect to registration-medianet
-        navigate('/registration-medianet', { replace: true });
-      }
-    }, [phoneNumber, formData, navigate]);
+  useEffect(() => {
+    if (!phoneNumber || !formData) {
+      navigate('/registration-medianet', { replace: true });
+    }
+  }, [phoneNumber, formData, navigate]);
 
-  // Resend countdown timer
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
@@ -41,7 +38,6 @@ const RegistrationOtp = () => {
     }
   }, [timer]);
 
-  // OTP expiration timer
   useEffect(() => {
     if (otpExpirationTimer > 0 && generatedOtp) {
       const expirationCountdown = setInterval(() => {
@@ -72,14 +68,25 @@ const RegistrationOtp = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
     
-    if (pastedData.length === 6) {
-      const newOtp = pastedData.split('');
+    if (pastedData.length > 0) {
+      const newOtp = ['', '', '', '', '', ''];
+      for (let i = 0; i < Math.min(pastedData.length, 6); i++) {
+        newOtp[i] = pastedData[i];
+      }
       setOtp(newOtp);
-      inputRefs.current[5].focus();
       
-      if (!isOtpExpired && pastedData === generatedOtp) {
+      const focusIndex = Math.min(pastedData.length, 5);
+      inputRefs.current[focusIndex]?.focus();
+      
+      if (pastedData.length === 6 && !isOtpExpired && pastedData === generatedOtp) {
         navigate('/registration-plan', { state: { formData } });
       }
+    }
+  };
+
+  const handleFocus = (e) => {
+    if (e.target.value) {
+      e.target.select();
     }
   };
 
@@ -141,7 +148,7 @@ const RegistrationOtp = () => {
     logToServer('Generated OTP: ' + newOtp);
     setGeneratedOtp(newOtp);
     setIsOtpExpired(false);
-    setOtpExpirationTimer(60); // Reset expiration timer to 60 seconds
+    setOtpExpirationTimer(60);
 
     try {
       logToServer('Sending OTP to: ' + phoneNumber);
@@ -175,7 +182,7 @@ const RegistrationOtp = () => {
   const handleResend = () => {
     if (canResend) {
       sendOtp(phoneNumber);
-      setTimer(60); // Reset resend timer
+      setTimer(60);
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
       setError('');
@@ -209,9 +216,10 @@ const RegistrationOtp = () => {
             value={digit}
             onChange={(e) => handleOtpChange(e, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
-            onPaste={index === 0 ? handlePaste : undefined}
+            onPaste={handlePaste}
+            onFocus={handleFocus}
             className="otp-input"
-            disabled={isOtpExpired} // Disable inputs when OTP is expired
+            disabled={isOtpExpired}
           />
         ))}
       </div>
@@ -227,7 +235,7 @@ const RegistrationOtp = () => {
       <button 
         className="submit-button" 
         onClick={handleVerify}
-        disabled={isOtpExpired} // Disable verify button when OTP is expired
+        disabled={isOtpExpired}
       >
         Verify OTP
       </button>
