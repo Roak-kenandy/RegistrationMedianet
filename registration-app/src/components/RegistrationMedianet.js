@@ -249,7 +249,7 @@ const RegistrationMedianet = () => {
                                     Referral phone number
                                 </label>
                                 <input
-                                    type="text"
+                                    type="number"
                                     name="referralCode"
                                     id="referralCode"
                                     value={formData.referralCode}
