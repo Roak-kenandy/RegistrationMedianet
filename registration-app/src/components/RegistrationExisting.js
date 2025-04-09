@@ -105,24 +105,6 @@ const RegistrationExisting = () => {
                     {subscriptions.length > 0 ? (
                         subscriptions.map((subscription, index) => (
                             <div key={index} className="subscription-card">
-                                {subscription.state?.toLowerCase() === 'churned' ? (
-                                    <>
-                                        <p className="churned-message">
-                                            You have already registered. You have to subscribe using the button below.
-                                        </p>
-                                        <button
-                                            className="action-button inactive"
-                                            onClick={() => handleButtonClick(subscription, index)}
-                                            disabled={loadingStates[index]}
-                                        >
-                                            {loadingStates[index] ? (
-                                                <span className="spinner-existing"></span>
-                                            ) : (
-                                                'Subscribe'
-                                            )}
-                                        </button>
-                                    </>
-                                ) : (
                                     <>
                                         <div className="field-group">
                                             <span className="field-label">Service Code</span>
@@ -155,11 +137,13 @@ const RegistrationExisting = () => {
                                                     ? 'Resend Login Details'
                                                     : subscription.state?.toLowerCase() === 'inactive'
                                                     ? 'Subscribe'
-                                                    : 'N/A'
+                                                    : subscription.state?.toLowerCase() === 'churned'
+                                                    ? 'Subscribe'
+                                                    : 'N?A'
                                             )}
                                         </button>
                                     </>
-                                )}
+                                
                             </div>
                         ))
                     ) : (

@@ -176,6 +176,16 @@
     transform: scale(1.02);
 }
 
+.action-button.churned {
+    background-color: #FFD700;
+    color: #1A2526;
+}
+
+.action-button.churned:hover {
+    background-color: #E6C200;
+    transform: scale(1.02);
+}
+
 .action-button.unknown {
     background-color: #6c757d;
     color: #fff;

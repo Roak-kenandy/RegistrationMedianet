@@ -144,10 +144,16 @@ const RegistrationMedianet = () => {
                     <h1 className="title">Register Now!</h1>
                     <form onSubmit={handleSubmit} className="form">
                         <div className="input-container">
+                            <label 
+                                className={`floating-label ${formData.firstName ? 'active' : ''}`} 
+                                htmlFor="firstName"
+                            >
+                                First Name *
+                            </label>
                             <input
                                 type="text"
                                 name="firstName"
-                                placeholder="First Name *"
+                                id="firstName"
                                 value={formData.firstName}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -159,10 +165,16 @@ const RegistrationMedianet = () => {
                         </div>
 
                         <div className="input-container">
+                            <label 
+                                className={`floating-label ${formData.lastName ? 'active' : ''}`} 
+                                htmlFor="lastName"
+                            >
+                                Last Name *
+                            </label>
                             <input
                                 type="text"
                                 name="lastName"
-                                placeholder="Last Name *"
+                                id="lastName"
                                 value={formData.lastName}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -192,10 +204,16 @@ const RegistrationMedianet = () => {
                                 </select>
                             </div>
                             <div className="input-container phone-input">
+                                <label 
+                                    className={`floating-label ${formData.phoneNumber ? 'active' : ''}`} 
+                                    htmlFor="phoneNumber"
+                                >
+                                    Phone Number *
+                                </label>
                                 <input
                                     type="tel"
                                     name="phoneNumber"
-                                    placeholder="Phone Number *"
+                                    id="phoneNumber"
                                     value={formData.phoneNumber}
                                     onChange={handleChange}
                                     maxLength={phoneLength}
@@ -210,7 +228,7 @@ const RegistrationMedianet = () => {
 
                         <div className="referral-container">
                             <div className="referral-select-container">
-                                <label className="select-label">Referral Type</label>
+                                <label className="select-label">Referral Type (Optional)</label>
                                 <select
                                     name="referralType"
                                     id="referralType"
@@ -228,7 +246,7 @@ const RegistrationMedianet = () => {
                                     className={`floating-label ${formData.referralCode ? 'active' : ''}`}
                                     htmlFor="referralCode"
                                 >
-                                    Referral Code
+                                    Referral phone number
                                 </label>
                                 <input
                                     type="text"
