@@ -20,6 +20,7 @@ const RegistrationOtp = () => {
   const [isOtpExpired, setIsOtpExpired] = useState(false);
   const hasSentInitialOtp = useRef(false);
   const inputRefs = useRef([]);
+  const hiddenInputRef = useRef(null);
 
   useEffect(() => {
     if (!phoneNumber || !formData) {
@@ -50,34 +51,25 @@ const RegistrationOtp = () => {
     }
   }, [otpExpirationTimer, generatedOtp]);
 
-  const handleOtpChange = (e, index) => {
-    const value = e.target.value.replace(/\D/g, '');
-    
-    // If the value is more than 1 digit, it might be a keyboard suggestion paste
-    if (value.length > 1) {
-      console.log('Multi-digit input detected in handleOtpChange:', value);
-      const newOtp = ['', '', '', '', '', ''];
-      for (let i = 0; i < Math.min(value.length, 6); i++) {
-        newOtp[i] = value[i];
-      }
-      setOtp(newOtp);
+  const handleHiddenInputChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    console.log('Hidden input value:', value); // Debug log
 
-      const focusIndex = Math.min(value.length - 1, 5);
-      if (inputRefs.current[focusIndex]) {
-        inputRefs.current[focusIndex].focus();
-      }
+    const newOtp = ['', '', '', '', '', ''];
+    for (let i = 0; i < Math.min(value.length, 6); i++) {
+      newOtp[i] = value[i];
+    }
+    setOtp(newOtp);
 
-      if (value.length === 6 && !isOtpExpired && value === generatedOtp) {
-        navigate('/registration-plan', { state: { formData } });
-      }
-    } else if (value.length <= 1) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
+    // Move focus to the last filled visible input
+    const focusIndex = Math.min(value.length - 1, 5);
+    if (inputRefs.current[focusIndex]) {
+      inputRefs.current[focusIndex].focus();
+    }
 
-      if (value && index < 5) {
-        inputRefs.current[index + 1].focus();
-      }
+    // Auto-verify if 6 digits are entered
+    if (value.length === 6 && !isOtpExpired && value === generatedOtp) {
+      navigate('/registration-plan', { state: { formData } });
     }
   };
 
@@ -110,33 +102,40 @@ const RegistrationOtp = () => {
       if (pastedData.length === 6 && !isOtpExpired && pastedData === generatedOtp) {
         navigate('/registration-plan', { state: { formData } });
       }
+
+      // Update the hidden input value
+      if (hiddenInputRef.current) {
+        hiddenInputRef.current.value = newOtp.join('');
+      }
     }
   };
 
-  const handleInput = (e, index) => {
+  const handleVisibleInputChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, '');
-    if (value.length > 1) { // Possible paste or keyboard suggestion
-      console.log('Multi-digit input detected in handleInput:', value);
-      const newOtp = ['', '', '', '', '', ''];
-      for (let i = 0; i < Math.min(value.length, 6); i++) {
-        newOtp[i] = value[i];
-      }
+    
+    if (value.length <= 1) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
       setOtp(newOtp);
-      
-      const focusIndex = Math.min(value.length - 1, 5);
-      if (inputRefs.current[focusIndex]) {
-        inputRefs.current[focusIndex].focus();
+
+      if (value && index < 5) {
+        inputRefs.current[index + 1].focus();
       }
-      
-      if (value.length === 6 && !isOtpExpired && value === generatedOtp) {
-        navigate('/registration-plan', { state: { formData } });
+
+      // Update the hidden input value
+      if (hiddenInputRef.current) {
+        hiddenInputRef.current.value = newOtp.join('');
       }
     }
   };
 
-  const handleFocus = (e) => {
+  const handleFocus = (e, index) => {
     if (e.target.value) {
       e.target.select();
+    }
+    // Also focus the hidden input to capture keyboard suggestions
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.focus();
     }
   };
 
@@ -152,6 +151,10 @@ const RegistrationOtp = () => {
           newOtp[index - 1] = '';
           setOtp(newOtp);
           inputRefs.current[index - 1].focus();
+        }
+        // Update the hidden input value
+        if (hiddenInputRef.current) {
+          hiddenInputRef.current.value = newOtp.join('');
         }
         break;
 
@@ -236,6 +239,9 @@ const RegistrationOtp = () => {
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
       setError('');
+      if (hiddenInputRef.current) {
+        hiddenInputRef.current.value = '';
+      }
     }
   };
 
@@ -256,6 +262,18 @@ const RegistrationOtp = () => {
         We've sent a 6-digit code to {phoneNumber || 'your phone number'}
       </p>
       {error && <span className="error-otp">{error}</span>}
+      {/* Hidden input to capture the full OTP */}
+      <input
+        ref={hiddenInputRef}
+        type="tel"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        maxLength="6"
+        style={{ position: 'absolute', opacity: 0, zIndex: -1 }}
+        onChange={handleHiddenInputChange}
+        onPaste={handlePaste}
+        disabled={isOtpExpired}
+      />
       <div className="otp-container">
         {otp.map((digit, index) => (
           <input
@@ -266,11 +284,9 @@ const RegistrationOtp = () => {
             pattern="[0-9]*"
             maxLength="1"
             value={digit}
-            onChange={(e) => handleOtpChange(e, index)}
-            onInput={(e) => handleInput(e, index)}
+            onChange={(e) => handleVisibleInputChange(e, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
-            onPaste={handlePaste}
-            onFocus={handleFocus}
+            onFocus={(e) => handleFocus(e, index)}
             className="otp-input"
             disabled={isOtpExpired}
           />
