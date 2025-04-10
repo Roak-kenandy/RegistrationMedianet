@@ -67,35 +67,39 @@ const RegistrationOtp = () => {
   const handlePaste = (e) => {
     e.preventDefault();
     let pastedData = '';
-    
+
     // Try different methods to get clipboard data
     if (e.clipboardData && e.clipboardData.getData) {
       pastedData = e.clipboardData.getData('text');
     } else if (window.clipboardData) {
       pastedData = window.clipboardData.getData('Text');
     }
-    
-    pastedData = pastedData.replace(/\D/g, '');
+
+    // Clean the pasted data to ensure it's numeric
+    pastedData = pastedData.replace(/\D/g, '').slice(0, 6); // Limit to 6 digits
     
     if (pastedData.length > 0) {
       const newOtp = ['', '', '', '', '', ''];
+      // Fill the OTP array with pasted digits
       for (let i = 0; i < Math.min(pastedData.length, 6); i++) {
         newOtp[i] = pastedData[i];
       }
       setOtp(newOtp);
-      
+
+      // Move focus to the last filled input or the end
       const focusIndex = Math.min(pastedData.length - 1, 5);
       if (inputRefs.current[focusIndex]) {
         inputRefs.current[focusIndex].focus();
       }
-      
+
+      // Auto-verify if 6 digits are pasted and valid
       if (pastedData.length === 6 && !isOtpExpired && pastedData === generatedOtp) {
         navigate('/registration-plan', { state: { formData } });
       }
     }
   };
 
-  // Additional handler for Android devices
+  // Additional handler for Android devices or fallback
   const handleInput = (e, index) => {
     const value = e.target.value.replace(/\D/g, '');
     if (value.length > 1) { // Possible paste event
@@ -243,13 +247,13 @@ const RegistrationOtp = () => {
           <input
             key={index}
             ref={(el) => (inputRefs.current[index] = el)}
-            type="tel"  // Changed to tel for better mobile support
-            inputMode="numeric"  // Ensures numeric keyboard on mobile
-            pattern="[0-9]*"  // Restricts to numbers
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
             maxLength="1"
             value={digit}
             onChange={(e) => handleOtpChange(e, index)}
-            onInput={(e) => handleInput(e, index)}  // Added for Android paste detection
+            onInput={(e) => handleInput(e, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={handlePaste}
             onFocus={handleFocus}
