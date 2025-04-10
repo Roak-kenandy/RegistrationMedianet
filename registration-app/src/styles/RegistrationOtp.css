@@ -9,9 +9,9 @@
     font-family: 'Roboto', sans-serif;
     color: #fff;
     padding: 20px;
-  }
-  
-  .logo {
+}
+
+.logo {
     position: absolute;
     top: 20px;
     left: 50%;
@@ -20,78 +20,84 @@
     max-width: 200px;
     padding: 0 10px;
     z-index: 1;
-  }
-  
-  .logo-image {
+}
+
+.logo-image {
     width: 100%;
     height: auto;
     display: block;
     object-fit: contain;
     max-height: 80px;
-  }
-  
-  @media (max-width: 480px) {
+}
+
+@media (max-width: 480px) {
     .logo {
-      max-width: 150px;
-      top: 0px;
+        max-width: 150px;
+        top: 0px;
     }
+
     .logo-image {
-      max-height: 60px;
+        max-height: 60px;
     }
+
     .container-otp {
-      padding: 15px;
+        padding: 15px;
     }
-  }
-  
-  @media (min-width: 481px) and (max-width: 768px) {
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
     .logo {
-      max-width: 180px;
+        max-width: 180px;
     }
+
     .logo-image {
-      max-height: 100px; /* Updated from 70px to 100px */
+        max-height: 100px;
+        /* Updated from 70px to 100px */
     }
-  }
-  
-  @media (min-width: 769px) and (max-width: 1200px) {
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
     .logo {
-      max-width: 200px;
+        max-width: 200px;
     }
-  }
-  
-  @media (min-width: 1201px) {
+}
+
+@media (min-width: 1201px) {
     .logo {
-      max-width: 130px;
+        max-width: 130px;
     }
+
     .logo-image {
-      max-height: 120px; /* Updated from 100px to 120px */
+        max-height: 120px;
+        /* Updated from 100px to 120px */
     }
-  }
-  
-  .highlight {
+}
+
+.highlight {
     color: #FFD700;
-  }
-  
-  .title {
+}
+
+.title {
     font-size: clamp(24px, 6vw, 36px);
     margin-bottom: 1rem;
     text-align: center;
-  }
-  
-  .subtitle {
+}
+
+.subtitle {
     font-size: clamp(14px, 2.5vw, 16px);
     color: #ccc;
     text-align: center;
     margin-bottom: 1rem;
-  }
-  
-  .otp-container {
+}
+
+.otp-container {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     justify-content: center;
-  }
-  
-  .otp-input {
+}
+
+.otp-input {
     width: 50px;
     height: 50px;
     padding: 10px;
@@ -103,20 +109,25 @@
     text-align: center;
     outline: none;
     transition: all 0.3s ease;
-  }
-  
-  .otp-input:focus {
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
+.otp-input:focus {
     border-color: #FFD700;
     background-color: #4A5556;
-  }
-  
-  .error-otp {
+}
+
+.error-otp {
     color: #ff4444;
     font-size: clamp(12px, 2vw, 14px);
     margin-bottom: 1rem;
-  }
-  
-  .submit-button {
+}
+
+.submit-button {
     padding: clamp(12px, 2.5vw, 15px);
     background-color: #FFD700;
     border: none;
@@ -127,54 +138,55 @@
     cursor: pointer;
     transition: all 0.3s ease;
     width: 200px;
-  }
-  
-  .submit-button:hover {
+}
+
+.submit-button:hover {
     background-color: #E6C200;
     transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
-  }
-  
-  .resend {
+}
+
+.resend {
     margin-bottom: 20px;
     font-size: clamp(12px, 2vw, 14px);
     color: #ccc;
-  }
-  
-  .resend-link {
+}
+
+.resend-link {
     color: #FFD700;
     cursor: pointer;
     text-decoration: underline;
-  }
-  
-  .resend-link:not(.disabled):hover {
+}
+
+.resend-link:not(.disabled):hover {
     color: #E6C200;
-  }
-  
-  .resend-link.disabled {
+}
+
+.resend-link.disabled {
     color: #666;
     cursor: not-allowed;
     text-decoration: none;
-  }
-  
-  @media (max-width: 480px) {
-    .otp-input {
-      width: 40px;
-      height: 40px;
-    }
-    .submit-button {
-      width: 150px;
-    }
-  }
+}
 
-  .otp-input:focus {
+@media (max-width: 480px) {
+    .otp-input {
+        width: 40px;
+        height: 40px;
+    }
+
+    .submit-button {
+        width: 150px;
+    }
+}
+
+.otp-input:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0,123,255,0.5);
-  }
-  
-  /* Ensure inputs are properly styled */
-  .otp-input {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Ensure inputs are properly styled */
+.otp-input {
     width: 40px;
     height: 40px;
     margin: 0 5px;
@@ -182,9 +194,9 @@
     font-size: 18px;
     border: 1px solid #ccc;
     border-radius: 4px;
-  }
-  
-  .otp-input:disabled {
+}
+
+.otp-input:disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;
-  }
+}
