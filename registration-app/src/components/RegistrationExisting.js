@@ -62,6 +62,7 @@ const RegistrationExisting = () => {
     };
 
     const handleButtonClick = async (subscription, index) => {
+        console.log(subscription,)
         setLoadingStates((prev) => ({ ...prev, [index]: true }));
 
         try {
@@ -105,6 +106,24 @@ const RegistrationExisting = () => {
                     {subscriptions.length > 0 ? (
                         subscriptions.map((subscription, index) => (
                             <div key={index} className="subscription-card">
+                                {subscription.state?.toLowerCase() === 'churned' || subscription.state?.toLowerCase() === 'inactive' ? (
+                                    <>
+                                        <p className="churned-message">
+                                        Please subscribe to a package using the button below.
+                                        </p>
+                                        <button
+                                            className="action-button inactive"
+                                            onClick={() => handleButtonClick(subscription, index)}
+                                            disabled={loadingStates[index]}
+                                        >
+                                            {loadingStates[index] ? (
+                                                <span className="spinner-existing"></span>
+                                            ) : (
+                                                'Subscribe'
+                                            )}
+                                        </button>
+                                    </>
+                                ) : (
                                     <>
                                         <div className="field-group">
                                             <span className="field-label">Service Code</span>
@@ -136,14 +155,14 @@ const RegistrationExisting = () => {
                                                 subscription.state?.toLowerCase() === 'active'
                                                     ? 'Resend Login Details'
                                                     : subscription.state?.toLowerCase() === 'inactive'
-                                                    ? 'Subscribe'
-                                                    : subscription.state?.toLowerCase() === 'churned'
-                                                    ? 'Subscribe'
-                                                    : 'N?A'
+                                                        ? 'Subscribe'
+                                                        : subscription.state?.toLowerCase() === 'churned'
+                                                            ? 'Subscribe'
+                                                            : 'N/A'
                                             )}
                                         </button>
                                     </>
-                                
+                                )}
                             </div>
                         ))
                     ) : (
