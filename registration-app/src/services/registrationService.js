@@ -11,6 +11,9 @@ const mtvHeaders = {
   'Content-Type': 'application/json',
 };
 
+const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
+// const MTV_BASE_URL = 'http://localhost:3004/api/v1';
+
 export const registrationService = {
   async registerContact(formData) {
     try {
@@ -27,7 +30,7 @@ export const registrationService = {
         },
       };
 
-      const response = await fetch(`https://mtvdev.medianet.mv/api/v1/contacts`, {
+      const response = await fetch(`${MTV_BASE_URL}/contacts`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify(payload),
@@ -44,28 +47,9 @@ export const registrationService = {
     }
   },
 
-//   async registerTag(contactId) {
-//     try {
-//       const tags = ['0c0d20c2-08e1-4483-bcbe-638608fedaba'];
-//       const response = await fetch(`${API_CONFIG.LOCAL_URL}/backoffice/v2/contacts/${contactId}/tags`, {
-//         method: 'PUT',
-//         headers: apiHeaders,
-//         body: JSON.stringify({ tags }),
-//       });
-
-//       if (!response.ok) {
-//         throw new Error(`HTTP error! status: ${response.status}`);
-//       }
-//       return true;
-//     } catch (error) {
-//       console.error('Error registering tag:', error);
-//       throw error;
-//     }
-//   },
-
   async createVirtualDevice(contactId) {
     try {
-      const response = await fetch('https://mtvdev.medianet.mv/api/v1/devices', {
+      const response = await fetch(`${MTV_BASE_URL}/devices`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify({ contact_id: contactId }),
@@ -84,7 +68,7 @@ export const registrationService = {
 
   async createAccount(contactId) {
     try {
-      const response = await fetch('https://mtvdev.medianet.mv/api/v1/accounts', {
+      const response = await fetch(`${MTV_BASE_URL}/accounts`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify({ contact_id: contactId }),
@@ -103,7 +87,7 @@ export const registrationService = {
 
   async getSubscriptionContacts(contactId) {
     try {
-      const response = await fetch(`https://mtvdev.medianet.mv/api/v1/getSubscriptionContacts/${contactId}`, {
+      const response = await fetch(`${MTV_BASE_URL}/getSubscriptionContacts/${contactId}`, {
         method: 'GET',
         headers: mtvHeaders,
       });
@@ -121,7 +105,7 @@ export const registrationService = {
 
   async getSubDeviceCode(subScriptionId) {
     try {
-      const response = await fetch(`https://mtvdev.medianet.mv/api/v1/getSubDeviceCode/${subScriptionId}`, {
+      const response = await fetch(`${MTV_BASE_URL}/getSubDeviceCode/${subScriptionId}`, {
         method: 'GET',
         headers: mtvHeaders,
       });
@@ -147,7 +131,7 @@ export const registrationService = {
         referralCode: formData.referralCode,
         referralType: formData.referralType
       };
-      const response = await fetch('https://mtvdev.medianet.mv/api/v1/mtvusers', {
+      const response = await fetch(`${MTV_BASE_URL}/mtvusers`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify(payload),
@@ -166,7 +150,7 @@ export const registrationService = {
 
   async verifyPhoneNumber(phoneNumber) {
     try {
-      const response = await fetch(`https://mtvdev.medianet.mv/api/v1/contact-details/${phoneNumber}`, {
+      const response = await fetch(`${MTV_BASE_URL}/contact-details/${phoneNumber}`, {
         method: 'GET',
         headers: mtvHeaders,
       });

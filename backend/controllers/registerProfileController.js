@@ -2,12 +2,28 @@ const registerProfileService = require('../services/registerProfileService');
 const { v4: uuidv4 } = require('uuid');
 const fetch = require('node-fetch');
 const fs = require('fs');
+const API_KEY = process.env.CRM_API_KEY;
+
+const crmHeaders = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'api_key': API_KEY,
+}
 
 const smsHeaders = {
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${process.env.REACT_APP_SMS_BEARER_TOKEN}`,
-  'User-Agent': 'insomnia/8.3.0',
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env.REACT_APP_SMS_BEARER_TOKEN}`,
+    'User-Agent': 'insomnia/8.3.0',
 };
+
+const CRM_BASE_URL = process.env.CRM_BASE_URL;
+const DEFAULT_TAG_ID = process.env.DEFAULT_TAG_ID;
+const DEVICE_PRODUCT_ID = process.env.DEVICE_PRODUCT_ID;
+const CLASSIFICATION_ID = process.env.CLASSIFICATION_ID;
+const CURRENCY_CODE = process.env.CURRENCY_CODE;
+const PAYMENT_TERMS_ID = process.env.PAYMENT_TERMS_ID;
+const PRICE_TERMS_ID = process.env.PRICE_TERMS_ID;
+const SERVICE_PRODUCT_ID = process.env.SERVICE_PRODUCT_ID;
 
 /**
  * Registers a new user profile
@@ -48,9 +64,6 @@ const postRegisterProfile = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Promise<void>}
  */
-const CRM_BASE_URL = 'https://app.crm.com/backoffice/v2';
-const DEFAULT_TAG_ID = '0c0d20c2-08e1-4483-bcbe-638608fedaba';
-const API_KEY = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
 const handleResponse = async (response, context) => {
     if (!response.ok) {
@@ -64,11 +77,7 @@ const registerContactTag = async (contactId, tags = [DEFAULT_TAG_ID]) => {
     try {
         const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/tags`, {
             method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': API_KEY,
-            },
+            headers: crmHeaders,
             body: JSON.stringify({ tags }),
         });
 
@@ -86,11 +95,7 @@ const postRegisterContact = async (req, res) => {
         // Create contact
         const contactResponse = await fetch(`${CRM_BASE_URL}/contacts`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': API_KEY,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(payload),
         });
 
@@ -123,23 +128,18 @@ const postRegisterContact = async (req, res) => {
  */
 const postDeviceToCRM = async (req, res) => {
     const { contact_id } = req.body;
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     const payload = {
         serial_number: uuidv4(),
         electronic_id: null,
         contact_id,
-        product_id: 'b95d8593-6d36-4a59-8407-b3c284471382',
+        product_id: DEVICE_PRODUCT_ID,
     };
 
     try {
-        const response = await fetch('https://app.crm.com/backoffice/v2/devices', {
+        const response = await fetch(`${CRM_BASE_URL}/devices`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(payload),
         });
 
@@ -164,24 +164,19 @@ const postDeviceToCRM = async (req, res) => {
  */
 const postAccount = async (req, res) => {
     const { contact_id } = req.body;
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     const payload = {
-        classification_id: '2c3ad63b-caf8-4be1-b76c-5b0c0438a28c',
+        classification_id: CLASSIFICATION_ID,
         credit_limit: '',
-        currency_code: 'MVR',
+        currency_code: CURRENCY_CODE,
         is_primary: false,
-        payment_terms_id: '01ec0a1b-0a9d-4bf6-ad88-51c2bdb9edff',
+        payment_terms_id: PAYMENT_TERMS_ID,
     };
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/contacts/${contact_id}/accounts`, {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contact_id}/accounts`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(payload),
         });
 
@@ -209,55 +204,41 @@ const postAccount = async (req, res) => {
  * @returns {Promise<void>}
  */
 const postSubscription = async (contactId, accountId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     const payload = {
         account_id: accountId,
         scheduled_date: null,
         services: [{
-            price_terms_id: 'e9d6936f-5ec1-4bbf-bc22-4e5668ddbb97',
-            product_id: 'babe5663-c577-4e85-b30b-06c961232853',
+            price_terms_id: PRICE_TERMS_ID,
+            product_id: SERVICE_PRODUCT_ID,
             quantity: 1,
         }],
     };
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/contacts/${contactId}/services`, {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/services`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(payload),
         });
 
-        console.log(await response.json(),'response from crm')
-
         await response.json();
     } catch (error) {
-        console.log(error,'error getting response')
+        console.log(error, 'error getting response')
         console.error('Error creating subscription in CRM:', error);
     }
 };
 
 const getSubscriptionContacts = async (req, res) => {
     const { contact_id } = req.params;
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/contacts/${contact_id}/subscriptions`, {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contact_id}/subscriptions`, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
         });
 
         const data = await response.json();
-
-        console.log(data,'data comes with new')
 
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
@@ -268,7 +249,7 @@ const getSubscriptionContacts = async (req, res) => {
             return res.status(200).json({
                 subscription_id: data.content[0].id,
                 device_ids: allowedDevicesData.deviceIds || [],
-                custom_fields: allowedDevicesData.customFields || null, // Include custom fields in response
+                custom_fields: allowedDevicesData.customFields || null,
             });
         }
 
@@ -286,18 +267,13 @@ const getSubscriptionContacts = async (req, res) => {
  * @returns {Promise<Object|null>}
  */
 const getAllowedDevices = async (subscriptionId, contactId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
         const response = await fetch(
-            `https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/allowed_devices?size=50&page=1&search_value=`,
+            `${CRM_BASE_URL}/subscriptions/${subscriptionId}/allowed_devices?size=50&page=1&search_value=`,
             {
                 method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': apiKey,
-                },
+                headers: crmHeaders,
             }
         );
 
@@ -308,7 +284,7 @@ const getAllowedDevices = async (subscriptionId, contactId) => {
             const assignedDevicesData = await postAddSubscriptionDevice(subscriptionId, deviceIds, contactId);
             return {
                 deviceIds: assignedDevicesData.deviceIds || [],
-                customFields: assignedDevicesData.customFields || null, // Pass custom fields
+                customFields: assignedDevicesData.customFields || null,
             };
         }
 
@@ -327,16 +303,11 @@ const getAllowedDevices = async (subscriptionId, contactId) => {
  * @returns {Promise<Object>}
  */
 const postAddSubscriptionDevice = async (subscriptionId, deviceIds, contactId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/devices`, {
+        const response = await fetch(`${CRM_BASE_URL}/subscriptions/${subscriptionId}/devices`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(deviceIds[0]),
         });
 
@@ -365,16 +336,11 @@ const postAddSubscriptionDevice = async (subscriptionId, deviceIds, contactId) =
  * @returns {Promise<Object|null>}
  */
 const getAssignDevices = async (contactId, deviceIds, subscriptionId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/contacts/${contactId}/services`, {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/services`, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders
         });
 
         const data = await response.json();
@@ -401,7 +367,6 @@ const getAssignDevices = async (contactId, deviceIds, subscriptionId) => {
  * @returns {Promise<Object>}
  */
 const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
         const updatedDevices = deviceIds.map(device => ({
@@ -409,22 +374,18 @@ const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
             action: 'ENABLE',
         }));
 
-        const response = await fetch(`https://app.crm.com/backoffice/v2/services/${serviceId}/devices`, {
+        const response = await fetch(`${CRM_BASE_URL}/services/${serviceId}/devices`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders,
             body: JSON.stringify(updatedDevices),
         });
 
         const data = await response.json();
-        const customFields = await getCustomFields(subscriptionId); // Get custom fields data
+        const customFields = await getCustomFields(subscriptionId);
 
         return {
             deviceIds: data,
-            customFields: customFields || null, // Include custom fields in return
+            customFields: customFields || null,
         };
     } catch (error) {
         console.error('Error assigning devices to service:', error);
@@ -438,18 +399,13 @@ const postAssignDevices = async (serviceId, deviceIds, subscriptionId) => {
  * @returns {Promise<Object|null>}
  */
 const getCustomFields = async (subscriptionId) => {
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
         const response = await fetch(
-            `https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`,
+            `${CRM_BASE_URL}/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`,
             {
                 method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api_key': apiKey,
-                },
+                headers: crmHeaders
             }
         );
 
@@ -463,16 +419,11 @@ const getCustomFields = async (subscriptionId) => {
 
 const getSubDeviceCode = async (req, res) => {
     const { subscription_id } = req.params;
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
-        const response = await fetch(`https://app.crm.com/backoffice/v2/subscriptions/${subscription_id}/devices?include_total=true&include_custom_fields=true&size=5&page=1`, {
+        const response = await fetch(`${CRM_BASE_URL}/subscriptions/${subscription_id}/devices?include_total=true&include_custom_fields=true&size=5&page=1`, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders
         });
 
         const data = await response.json();
@@ -480,7 +431,6 @@ const getSubDeviceCode = async (req, res) => {
         if (!response.ok) {
             return res.status(response.status).json({ error: data });
         }
-
 
         return res.status(200).json(data);
     } catch (error) {
@@ -536,15 +486,11 @@ const smsService = async (req, res) => {
 };
 
 // Helper function to fetch tags for a given contact ID
-const fetchContactTags = async (contactId, apiKey) => {
-    const tagsUrl = `https://app.crm.com/backoffice/v2/contacts/${contactId}/tags`;
+const fetchContactTags = async (contactId) => {
+    const tagsUrl = `${CRM_BASE_URL}/contacts/${contactId}/tags`;
     const response = await fetch(tagsUrl, {
         method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api_key': apiKey,
-        },
+        headers: crmHeaders
     });
 
     const data = await response.json();
@@ -555,15 +501,11 @@ const fetchContactTags = async (contactId, apiKey) => {
 };
 
 // Helper function to fetch subscriptions for a given contact ID
-const fetchContactSubscriptions = async (contactId, apiKey) => {
-    const subscriptionsUrl = `https://app.crm.com/backoffice/v2/contacts/${contactId}/subscriptions?size=100&page=1&include_terms=true&include_billing_info=true&include_future_info=true`;
+const fetchContactSubscriptions = async (contactId) => {
+    const subscriptionsUrl = `${CRM_BASE_URL}/contacts/${contactId}/subscriptions?size=100&page=1&include_terms=true&include_billing_info=true&include_future_info=true`;
     const response = await fetch(subscriptionsUrl, {
         method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api_key': apiKey,
-        },
+        headers: crmHeaders
     });
 
     const data = await response.json();
@@ -574,15 +516,11 @@ const fetchContactSubscriptions = async (contactId, apiKey) => {
 };
 
 // Helper function to fetch devices for a given subscription ID
-const fetchSubscriptionDevices = async (subscriptionId, apiKey) => {
-    const devicesUrl = `https://app.crm.com/backoffice/v2/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`;
+const fetchSubscriptionDevices = async (subscriptionId) => {
+    const devicesUrl = `${CRM_BASE_URL}/subscriptions/${subscriptionId}/devices?include_total=true&include_custom_fields=true&size=5&page=1`;
     const response = await fetch(devicesUrl, {
         method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api_key': apiKey,
-        },
+        headers: crmHeaders
     });
 
     const data = await response.json();
@@ -607,7 +545,6 @@ const formatDate = (timestamp) => {
 const getContactDetails = async (req, res) => {
     // Extract parameters from req.params
     const { phone_number } = req.params;
-    const apiKey = process.env.CRM_API_KEY || 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 
     try {
         // Construct the query string with the parameters for the first API call
@@ -616,14 +553,10 @@ const getContactDetails = async (req, res) => {
         }).toString();
 
         // First API call to get contact details
-        const contactsUrl = `https://app.crm.com/backoffice/v2/contacts?${queryParams}`;
+        const contactsUrl = `${CRM_BASE_URL}/contacts?${queryParams}`;
         const contactsResponse = await fetch(contactsUrl, {
             method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'api_key': apiKey,
-            },
+            headers: crmHeaders
         });
 
         const contactsData = await contactsResponse.json();
@@ -642,21 +575,21 @@ const getContactDetails = async (req, res) => {
                 const contactId = contact.id;
 
                 try {
-                    const tagsData = await fetchContactTags(contactId, apiKey);
+                    const tagsData = await fetchContactTags(contactId);
                     // Check if the tags include "OTT"
                     const hasOTTTag = tagsData.content && tagsData.content.some(tag => tag.name === "OTT");
 
                     if (hasOTTTag) {
                         // Fetch subscriptions for contacts with "OTT" tag
                         try {
-                            const subscriptionsData = await fetchContactSubscriptions(contactId, apiKey);
+                            const subscriptionsData = await fetchContactSubscriptions(contactId);
 
                             if (subscriptionsData.content && subscriptionsData.content.length > 0) {
                                 for (const subscription of subscriptionsData.content) {
                                     const subscriptionId = subscription.id;
 
                                     try {
-                                        const devicesData = await fetchSubscriptionDevices(subscriptionId, apiKey);
+                                        const devicesData = await fetchSubscriptionDevices(subscriptionId);
                                         const deviceValues = devicesData.content.map(device => {
                                             // Extract only the "code" value from custom_fields
                                             const codeField = device.custom_fields.find(field => field.key === "code");
