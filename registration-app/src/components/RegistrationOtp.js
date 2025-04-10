@@ -53,7 +53,24 @@ const RegistrationOtp = () => {
   const handleOtpChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, '');
     
-    if (value.length <= 1) {
+    // If the value is more than 1 digit, it might be a keyboard suggestion paste
+    if (value.length > 1) {
+      console.log('Multi-digit input detected in handleOtpChange:', value);
+      const newOtp = ['', '', '', '', '', ''];
+      for (let i = 0; i < Math.min(value.length, 6); i++) {
+        newOtp[i] = value[i];
+      }
+      setOtp(newOtp);
+
+      const focusIndex = Math.min(value.length - 1, 5);
+      if (inputRefs.current[focusIndex]) {
+        inputRefs.current[focusIndex].focus();
+      }
+
+      if (value.length === 6 && !isOtpExpired && value === generatedOtp) {
+        navigate('/registration-plan', { state: { formData } });
+      }
+    } else if (value.length <= 1) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
@@ -68,41 +85,38 @@ const RegistrationOtp = () => {
     e.preventDefault();
     let pastedData = '';
 
-    // Try different methods to get clipboard data
     if (e.clipboardData && e.clipboardData.getData) {
       pastedData = e.clipboardData.getData('text');
+      console.log('Clipboard data (onPaste):', pastedData);
     } else if (window.clipboardData) {
       pastedData = window.clipboardData.getData('Text');
+      console.log('Window clipboard data (onPaste):', pastedData);
     }
 
-    // Clean the pasted data to ensure it's numeric
-    pastedData = pastedData.replace(/\D/g, '').slice(0, 6); // Limit to 6 digits
+    pastedData = pastedData.replace(/\D/g, '').slice(0, 6);
     
     if (pastedData.length > 0) {
       const newOtp = ['', '', '', '', '', ''];
-      // Fill the OTP array with pasted digits
       for (let i = 0; i < Math.min(pastedData.length, 6); i++) {
         newOtp[i] = pastedData[i];
       }
       setOtp(newOtp);
 
-      // Move focus to the last filled input or the end
       const focusIndex = Math.min(pastedData.length - 1, 5);
       if (inputRefs.current[focusIndex]) {
         inputRefs.current[focusIndex].focus();
       }
 
-      // Auto-verify if 6 digits are pasted and valid
       if (pastedData.length === 6 && !isOtpExpired && pastedData === generatedOtp) {
         navigate('/registration-plan', { state: { formData } });
       }
     }
   };
 
-  // Additional handler for Android devices or fallback
   const handleInput = (e, index) => {
     const value = e.target.value.replace(/\D/g, '');
-    if (value.length > 1) { // Possible paste event
+    if (value.length > 1) { // Possible paste or keyboard suggestion
+      console.log('Multi-digit input detected in handleInput:', value);
       const newOtp = ['', '', '', '', '', ''];
       for (let i = 0; i < Math.min(value.length, 6); i++) {
         newOtp[i] = value[i];
