@@ -11,8 +11,8 @@ const mtvHeaders = {
   'Content-Type': 'application/json',
 };
 
-const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
-// const MTV_BASE_URL = 'http://localhost:3004/api/v1';
+// const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
+const MTV_BASE_URL = 'http://localhost:3004/api/v1';
 
 export const registrationService = {
   async registerContact(formData) {
@@ -28,6 +28,16 @@ export const registrationService = {
           number: formData.phoneNumber,
           type: 'MOBILE',
         },
+        address: {
+          type: "ALTERNATIVE",
+          name: "",
+          is_primary: true,
+          address_line_1: "N/A",
+          address_line_2: "",
+          town_city: "Maldives",
+          postal_code: "",
+          country_code: "MDV",
+      },
       };
 
       const response = await fetch(`${MTV_BASE_URL}/contacts`, {
