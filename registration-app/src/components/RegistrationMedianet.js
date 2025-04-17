@@ -237,7 +237,7 @@ const RegistrationMedianet = () => {
                                     className="referral-select"
                                 >
                                     <option value="">Select...</option>
-                                    <option value="Employee">Employee</option>
+                                    <option value="Employee">Medianet</option>
                                     <option value="Dealer">Dealer</option>
                                 </select>
                             </div>
