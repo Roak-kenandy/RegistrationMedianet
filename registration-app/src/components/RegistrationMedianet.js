@@ -249,14 +249,13 @@ const RegistrationMedianet = () => {
                                     Referral phone number
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     name="referralCode"
                                     id="referralCode"
                                     value={formData.referralCode}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     className="input referral-input-field"
-                                    disabled={!formData.referralType}
                                 />
                             </div>
                         </div>
