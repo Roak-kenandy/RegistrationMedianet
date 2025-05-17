@@ -11,6 +11,7 @@ const RegistrationPlan = () => {
   const location = useLocation();
   const [formData, setFormData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // New flag to prevent duplicate calls
 
   useEffect(() => {
     if (!location.state?.formData) {
@@ -30,6 +31,13 @@ const RegistrationPlan = () => {
   ];
 
   const handleConfirm = async () => {
+    // Prevent multiple executions
+    if (isProcessing) {
+      console.log('handleConfirm already in progress, ignoring duplicate call');
+      return;
+    }
+
+    setIsProcessing(true);
     setIsLoading(true);
     let success = false;
     let deviceCode = 'N/A';
@@ -57,12 +65,16 @@ const RegistrationPlan = () => {
 
       await registrationService.postMtvUser(formData);
       success = true;
+
+      // Set localStorage and dispatch event only on success
+      localStorage.setItem('medianetCompleted', 'true');
+      window.dispatchEvent(new Event('medianetCompletedChange'));
     } catch (error) {
       console.error('Registration error:', error);
       success = false;
     } finally {
       setIsLoading(false);
-      localStorage.setItem('medianetCompleted', 'true');
+      setIsProcessing(false);
       navigate('/registration-success', {
         state: { formData, success, deviceCode },
         replace: true,
@@ -99,7 +111,7 @@ const RegistrationPlan = () => {
                   handleConfirm();
                 }
               }}
-              disabled={isLoading}
+              disabled={isLoading || isProcessing} // Disable button during processing
             >
               {isLoading ? (
                 <div className="spinner-parent">

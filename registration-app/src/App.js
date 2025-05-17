@@ -127,55 +127,90 @@ import './App.css';
 function NavigationController() {
   const navigate = useNavigate();
   const location = useLocation();
-  const isMedianetCompleted = localStorage.getItem('medianetCompleted') === 'true';
-  
+  const [isMedianetCompleted, setIsMedianetCompleted] = useState(
+    localStorage.getItem('medianetCompleted') === 'true'
+  );
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Sync isMedianetCompleted with localStorage changes via custom event
   useEffect(() => {
-    // Check if we're trying to access a protected page
+    const handleStorageChange = () => {
+      setIsMedianetCompleted(localStorage.getItem('medianetCompleted') === 'true');
+    };
+
+    window.addEventListener('medianetCompletedChange', handleStorageChange);
+    handleStorageChange(); // Initial check
+
+    return () => {
+      window.removeEventListener('medianetCompletedChange', handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
     const protectedRoutes = [
-      '/registration-existing', 
-      '/registration-otp', 
-      '/registration-plan', 
-      '/registration-success'
+      '/registration-existing',
+      '/registration-otp',
+      '/registration-plan',
+      '/registration-success',
     ];
-    
-    // Redirect to medianet if trying to access protected routes without completion
+
+    // Skip checks if navigating or on medianet page
+    if (isNavigating || location.pathname === '/registration-medianet') {
+      return;
+    }
+
+    // Protect routes
     if (protectedRoutes.includes(location.pathname) && !isMedianetCompleted) {
-      window.location.href = '/registration-medianet';
+      setIsNavigating(true);
+      navigate('/registration-medianet', { replace: true });
+      setTimeout(() => setIsNavigating(false), 1000); // Lock for 1s
+      return;
     }
-    
-    // Prevent back navigation for specified routes including registration-medianet
+
+    // Prevent back navigation for these routes
     const noBackRoutes = [
-      '/registration-medianet',  // Added this route
-      '/registration-plan', 
-      '/registration-success', 
-      '/registration-existing'
+      '/registration-medianet',
     ];
-    
+
+    // Redirect to medianet on back navigation for these routes
+    const redirectOnBackRoutes = [
+      '/registration-otp',
+      '/registration-existing',
+      '/registration-plan',
+      '/registration-success',
+    ];
+
     if (noBackRoutes.includes(location.pathname)) {
-      // Push current state to history to detect back navigation
-      window.history.pushState(null, null, location.pathname);
-      
+      // Push current state
+      window.history.pushState({ page: location.pathname }, null, location.pathname);
+
       const handlePopState = (event) => {
-        // When on registration-medianet and trying to go back
-        if (location.pathname === '/registration-medianet') {
-          // Stay on registration-medianet by pushing the state again
-          window.history.pushState(null, null, '/registration-medianet');
-        } else {
-          // For other noBackRoutes, redirect to medianet
-          window.location.href = '/registration-medianet';
-        }
-        // Prevent default back behavior
+        if (isNavigating) return; // Ignore during programmatic navigation
         event.preventDefault();
+        // Stay on current page
+        window.history.pushState({ page: location.pathname }, null, location.pathname);
       };
-      
+
       window.addEventListener('popstate', handlePopState);
-      
-      return () => {
-        window.removeEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    } else if (redirectOnBackRoutes.includes(location.pathname)) {
+      // Push current state
+      window.history.pushState({ page: location.pathname }, null, location.pathname);
+
+      const handlePopState = (event) => {
+        if (isNavigating) return; // Ignore during programmatic navigation
+        event.preventDefault();
+        // Redirect to medianet
+        setIsNavigating(true);
+        navigate('/registration-medianet', { replace: true });
+        setTimeout(() => setIsNavigating(false), 1000);
       };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
     }
-  }, [location.pathname, isMedianetCompleted, navigate]);
-  
+  }, [location.pathname, isMedianetCompleted, navigate, isNavigating]);
+
   return null;
 }
 
@@ -185,7 +220,7 @@ function App() {
       localStorage.setItem('medianetCompleted', 'false');
     }
   }, []);
-  
+
   return (
     <Router>
       <div className="App">
