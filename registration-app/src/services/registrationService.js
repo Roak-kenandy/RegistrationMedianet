@@ -28,6 +28,16 @@ export const registrationService = {
           number: formData.phoneNumber,
           type: 'MOBILE',
         },
+        address: {
+          type: "ALTERNATIVE",
+          name: "",
+          is_primary: true,
+          address_line_1: "N/A",
+          address_line_2: "",
+          town_city: "Maldives",
+          postal_code: "",
+          country_code: "MDV",
+      },
       };
 
       const response = await fetch(`${MTV_BASE_URL}/contacts`, {
