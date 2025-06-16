@@ -17,7 +17,7 @@ const RegistrationSuccess = () => {
       // Log current path for debugging
       // If no formData is provided, redirect immediately
       if (!location.state?.formData) {
-        navigate('/registration-medianet', { replace: true });
+        navigate('/registration-category', { replace: true });
         return;
       }
   
@@ -42,7 +42,7 @@ const RegistrationSuccess = () => {
   };
 
   const handleBackToLogin = () => {
-    navigate('/registration-medianet');
+    navigate('/registration-category');
   };
 
   return (

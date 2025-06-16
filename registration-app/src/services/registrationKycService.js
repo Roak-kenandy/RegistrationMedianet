@@ -14,8 +14,9 @@ const mtvHeaders = {
 const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
 // const MTV_BASE_URL = 'http://localhost:3004/api/v1';
 
-export const registrationService = {
+export const registrationKycService = {
   async registerContact(formData) {
+    console.log('Registering contact with formData:', formData);
     try {
       const payload = {
         type: 'PERSON',
@@ -29,18 +30,19 @@ export const registrationService = {
           type: 'MOBILE',
         },
         address: {
-          type: "ALTERNATIVE",
+          type: formData.addressType.toUpperCase(),
           name: "",
           is_primary: true,
-          address_line_1: "N/A",
-          address_line_2: "",
-          town_city: "Maldives",
+          name: formData.fullAddress,
+          address_line_1: formData.road,
+          address_line_2: formData.ward,
+          town_city: formData.city,
           postal_code: "",
           country_code: "MDV",
       },
       };
 
-      const response = await fetch(`${MTV_BASE_URL}/contacts`, {
+      const response = await fetch(`${MTV_BASE_URL}/tvContacts`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify(payload),
@@ -59,7 +61,7 @@ export const registrationService = {
 
   async createVirtualDevice(contactId) {
     try {
-      const response = await fetch(`${MTV_BASE_URL}/devices`, {
+      const response = await fetch(`${MTV_BASE_URL}/tvDevices`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify({ contact_id: contactId }),
@@ -78,7 +80,7 @@ export const registrationService = {
 
   async createAccount(contactId) {
     try {
-      const response = await fetch(`${MTV_BASE_URL}/accounts`, {
+      const response = await fetch(`${MTV_BASE_URL}/tvAccounts`, {
         method: 'POST',
         headers: mtvHeaders,
         body: JSON.stringify({ contact_id: contactId }),
@@ -161,24 +163,6 @@ export const registrationService = {
   async verifyPhoneNumber(phoneNumber) {
     try {
       const response = await fetch(`${MTV_BASE_URL}/contact-details/${phoneNumber}`, {
-        method: 'GET',
-        headers: mtvHeaders,
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(`API error: ${result?.error || 'Unknown error'}`);
-      }
-      return result;
-    } catch (error) {
-      console.error('Error fetching subscription contacts:', error);
-      throw error;
-    }
-  },
-
-    async verifyTvPhoneNumber(phoneNumber) {
-    try {
-      const response = await fetch(`${MTV_BASE_URL}/tvContactDetails/${phoneNumber}`, {
         method: 'GET',
         headers: mtvHeaders,
       });

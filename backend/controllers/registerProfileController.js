@@ -18,12 +18,16 @@ const smsHeaders = {
 
 const CRM_BASE_URL = process.env.CRM_BASE_URL;
 const DEFAULT_TAG_ID = process.env.DEFAULT_TAG_ID;
+const MEDIANET_TAG_ID = process.env.MEDIANET_TAG_ID;
 const DEVICE_PRODUCT_ID = process.env.DEVICE_PRODUCT_ID;
+const TV_APP_DEVICE_ID = process.env.TV_APP_DEVICE_ID;
 const CLASSIFICATION_ID = process.env.CLASSIFICATION_ID;
 const CURRENCY_CODE = process.env.CURRENCY_CODE;
 const PAYMENT_TERMS_ID = process.env.PAYMENT_TERMS_ID;
 const PRICE_TERMS_ID = process.env.PRICE_TERMS_ID;
 const SERVICE_PRODUCT_ID = process.env.SERVICE_PRODUCT_ID;
+const TV_PRICE_TERMS_ID = process.env.TV_PRICE_TERMS_ID;;
+const TV_SERVICE_PRODUCT_ID = process.env.TV_SERVICE_PRODUCT_ID;
 
 /**
  * Registers a new user profile
@@ -88,6 +92,21 @@ const registerContactTag = async (contactId, tags = [DEFAULT_TAG_ID]) => {
     }
 };
 
+const registerTVContactTag = async (contactId, tags = [MEDIANET_TAG_ID]) => {
+    try {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/tags`, {
+            method: 'PUT',
+            headers: crmHeaders,
+            body: JSON.stringify({ tags }),
+        });
+
+        return handleResponse(response, `Tag registration for contact ${contactId}`);
+    } catch (error) {
+        console.error(`Tag registration error for contact ${contactId}:`, error);
+        throw error;
+    }
+};
+
 const postRegisterContact = async (req, res) => {
     try {
         const payload = req.body;
@@ -104,6 +123,38 @@ const postRegisterContact = async (req, res) => {
         // Add default tag
         if (contactData?.id) {
             await registerContactTag(contactData.id);
+        }
+
+        return res.status(201).json({
+            id: contactData.id
+        });
+
+    } catch (error) {
+        console.error('Contact registration error:', error);
+        const statusCode = error.message.includes('failed') ? 400 : 500;
+        return res.status(statusCode).json({
+            success: false,
+            message: error.message || 'Internal server error'
+        });
+    }
+};
+
+const postRegisterTvContact = async (req, res) => {
+    try {
+        const payload = req.body;
+
+        // Create contact
+        const contactResponse = await fetch(`${CRM_BASE_URL}/contacts`, {
+            method: 'POST',
+            headers: crmHeaders,
+            body: JSON.stringify(payload),
+        });
+
+        const contactData = await handleResponse(contactResponse, 'Contact creation');
+
+        // Add default tag
+        if (contactData?.id) {
+            await registerTVContactTag(contactData.id);
         }
 
         return res.status(201).json({
@@ -157,6 +208,42 @@ const postDeviceToCRM = async (req, res) => {
 };
 
 /**
+ * Registers a device to the CRM system
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
+const postTvDeviceToCRM = async (req, res) => {
+    const { contact_id } = req.body;
+
+    const payload = {
+        serial_number: uuidv4(),
+        electronic_id: null,
+        contact_id,
+        product_id: TV_APP_DEVICE_ID,
+    };
+
+    try {
+        const response = await fetch(`${CRM_BASE_URL}/devices`, {
+            method: 'POST',
+            headers: crmHeaders,
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data });
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error posting device to CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+/**
  * Creates a new account for a contact
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
@@ -180,10 +267,51 @@ const postAccount = async (req, res) => {
             body: JSON.stringify(payload),
         });
 
-        const data = await response.json();
+        const data = await response.json()
 
         if (data.id) {
             await postSubscription(contact_id, data.id);
+        }
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data });
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error creating account in CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+/**
+ * Creates a new account for a contact
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
+const postTvAccount = async (req, res) => {
+    const { contact_id } = req.body;
+
+    const payload = {
+        classification_id: CLASSIFICATION_ID,
+        credit_limit: '',
+        currency_code: CURRENCY_CODE,
+        is_primary: false,
+        payment_terms_id: PAYMENT_TERMS_ID,
+    };
+
+    try {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contact_id}/accounts`, {
+            method: 'POST',
+            headers: crmHeaders,
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json()
+
+        if (data.id) {
+            await postTvSubscription(contact_id, data.id);
         }
 
         if (!response.ok) {
@@ -211,6 +339,38 @@ const postSubscription = async (contactId, accountId) => {
         services: [{
             price_terms_id: PRICE_TERMS_ID,
             product_id: SERVICE_PRODUCT_ID,
+            quantity: 1,
+        }],
+    };
+
+    try {
+        const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/services`, {
+            method: 'POST',
+            headers: crmHeaders,
+            body: JSON.stringify(payload),
+        });
+
+        await response.json();
+    } catch (error) {
+        console.log(error, 'error getting response')
+        console.error('Error creating subscription in CRM:', error);
+    }
+};
+
+/**
+ * Creates a subscription for a contact
+ * @param {string} contactId - Contact identifier
+ * @param {string} accountId - Account identifier
+ * @returns {Promise<void>}
+ */
+const postTvSubscription = async (contactId, accountId) => {
+
+    const payload = {
+        account_id: accountId,
+        scheduled_date: null,
+        services: [{
+            price_terms_id: TV_PRICE_TERMS_ID,
+            product_id: TV_SERVICE_PRODUCT_ID,
             quantity: 1,
         }],
     };
@@ -649,6 +809,113 @@ const getContactDetails = async (req, res) => {
     }
 };
 
+const getTvContactDetails = async (req, res) => {
+    // Extract parameters from req.params
+    const { phone_number } = req.params;
+
+    try {
+        // Construct the query string with the parameters for the first API call
+        const queryParams = new URLSearchParams({
+            phone_number: phone_number || '',
+        }).toString();
+
+        // First API call to get contact details
+        const contactsUrl = `${CRM_BASE_URL}/contacts?${queryParams}`;
+        const contactsResponse = await fetch(contactsUrl, {
+            method: 'GET',
+            headers: crmHeaders
+        });
+
+        const contactsData = await contactsResponse.json();
+
+        if (!contactsResponse.ok) {
+            return res.status(contactsResponse.status).json({ error: contactsData });
+        }
+
+        // Check if there is content in the response
+        if (contactsData.content && contactsData.content.length > 0) {
+            // Array to store simplified subscription and device data
+            const subscriptionsWithDetails = [];
+
+            // Loop through each contact and fetch their tags
+            for (const contact of contactsData.content) {
+                const contactId = contact.id;
+
+                try {
+                    const tagsData = await fetchContactTags(contactId);
+                    // Check if the tags include "medianetTvTag"
+                    const medianetTvTag = tagsData.content && tagsData.content.some(tag => tag.name === "Medianet TV");
+
+                    if (medianetTvTag) {
+                        // Fetch subscriptions for contacts with "Medianet TV" tag
+                        try {
+                            const subscriptionsData = await fetchContactSubscriptions(contactId);
+
+                            if (subscriptionsData.content && subscriptionsData.content.length > 0) {
+                                for (const subscription of subscriptionsData.content) {
+                                    const subscriptionId = subscription.id;
+
+                                    try {
+                                        const devicesData = await fetchSubscriptionDevices(subscriptionId);
+                                        const deviceValues = devicesData.content.map(device => {
+                                            // Extract only the "code" value from custom_fields
+                                            const codeField = device.custom_fields.find(field => field.key === "code");
+                                            return codeField ? codeField.value : null;
+                                        }).filter(value => value !== null); // Remove null values
+
+                                        subscriptionsWithDetails.push({
+                                            state: subscription.state,
+                                            start_date: formatDate(subscription.first_activation_date),
+                                            end_date: formatDate(subscription.billing_info.bill_up_date),
+                                            value: deviceValues.length > 0 ? deviceValues[0] : null, // Take first value if exists
+                                        });
+                                    } catch (error) {
+                                        console.error(`Error fetching devices for subscription ${subscriptionId}:`, error);
+                                        subscriptionsWithDetails.push({
+                                            state: subscription.state,
+                                            start_date: formatDate(subscription.first_activation_date),
+                                            end_date: formatDate(subscription.billing_info.bill_up_date),
+                                            value: null,
+                                        });
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`Error fetching subscriptions for contact ${contactId}:`, error);
+                            subscriptionsWithDetails.push({
+                                state: null,
+                                start_date: null,
+                                end_date: null,
+                                value: null,
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching tags for contact ${contactId}:`, error);
+                    subscriptionsWithDetails.push({
+                        state: null,
+                        start_date: null,
+                        end_date: null,
+                        value: null,
+                    });
+                }
+            }
+
+            // Return simplified data
+            if (subscriptionsWithDetails.length > 0) {
+                return res.status(200).json(subscriptionsWithDetails); // Return array directly
+            } else {
+                return res.status(200).json({ message: 'No subscriptions with "OTT" tag found for the given phone number' });
+            }
+        } else {
+            return res.status(200).json({ message: 'No contacts found for the given phone number' });
+        }
+    } catch (error) {
+        console.error('Error fetching data from CRM:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     postRegisterProfile,
     postDeviceToCRM,
@@ -658,5 +925,9 @@ module.exports = {
     getSubDeviceCode,
     logsForMtvUsers,
     smsService,
-    getContactDetails
+    getContactDetails,
+    postRegisterTvContact,
+    postTvDeviceToCRM,
+    postTvAccount,
+    getTvContactDetails
 };

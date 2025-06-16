@@ -6,9 +6,9 @@ import { registrationService } from '../services/registrationService';
 import { COUNTRY_DATA } from '../config/constants';
 import Popup from './Popup';
 import logoImage from '../assests/medianet-app-image.jpg';
-import '../styles/RegistrationMedianet.css';
+import '../styles/RegistrationKycScreen.css';
 
-const RegistrationMedianet = () => {
+const RegistrationKycScreen = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -16,8 +16,11 @@ const RegistrationMedianet = () => {
     lastName: '',
     countryCode: 'MDV',
     phoneNumber: '',
-    referralType: '',
-    referralCode: '',
+    fullAddress: '',
+    addressType: 'Home',
+    road: '',
+    ward: '',
+    city: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -25,7 +28,8 @@ const RegistrationMedianet = () => {
     firstName: false,
     lastName: false,
     phoneNumber: false,
-    referralCode: false,
+    fullAddress: false,
+    city: false,
   });
   const [isFormValid, setIsFormValid] = useState(false);
   const [phoneLength, setPhoneLength] = useState(7);
@@ -50,56 +54,69 @@ const RegistrationMedianet = () => {
     if (!formData.phoneNumber.match(new RegExp(`^\\d{${phoneLength}}$`))) {
       newErrors.phoneNumber = `Phone number must be exactly ${phoneLength} digits`;
     }
+    if (!formData.fullAddress.trim()) {
+      newErrors.fullAddress = 'Full address is required';
+    }
+    if (!formData.addressType) {
+      newErrors.addressType = 'Address type is required';
+    }
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
     return { newErrors, isValid: Object.keys(newErrors).length === 0 };
   };
 
-  const fetchContactsData = async () => {
-    try {
-      setIsLoading(true);
-      const data = await registrationService.verifyPhoneNumber(formData.phoneNumber);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { isValid } = validateForm();
+    if (isValid && !isLoading) {
+      try {
+        setIsLoading(true);
+        const selectedCountry = COUNTRY_DATA.find(country => country.code === formData.countryCode);
+        if (!selectedCountry) {
+          throw new Error('Invalid country code selected');
+        }
+        const fullPhoneNumber = `${formData.phoneNumber}`;
 
-      localStorage.setItem('medianetCompleted', 'true');
-      window.dispatchEvent(new Event('medianetCompletedChange'));
+        // Simulate API call to verify phone number
+        const data = await registrationService.verifyTvPhoneNumber(fullPhoneNumber);
 
-      if (data.length > 0) {
-        navigate('/registration-existing', {
-          state: {
-            data,
-            phoneNumber: formData.phoneNumber,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-          },
-          replace: true,
-        });
-      } else {
-        const { isValid } = validateForm();
-
-        if (isValid) {
-          const selectedCountry = COUNTRY_DATA.find(country => country.code === formData.countryCode);
-          if (!selectedCountry) {
-            throw new Error('Invalid country code selected');
-          }
-
-          const fullPhoneNumber = `${selectedCountry.phoneCode}${formData.phoneNumber}`;
-
-          navigate('/registration-otp', {
+        if (data.length > 0) {
+          navigate('/registration-existing', {
             state: {
+              data,
               phoneNumber: fullPhoneNumber,
-              formData: formData,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              addressDetails: {
+                fullAddress: formData.fullAddress,
+                addressType: formData.addressType,
+                road: formData.road,
+                ward: formData.ward,
+                city: formData.city,
+              },
             },
             replace: true,
           });
         } else {
-          setPopupMessage('Please fill in all required fields correctly.');
-          setShowPopup(true);
+          navigate('/registration-tv-otp', {
+            state: {
+              phoneNumber: fullPhoneNumber,
+              formData,
+            },
+            replace: true,
+          });
         }
+      } catch (error) {
+        console.error('Error verifying contact:', error);
+        setPopupMessage('An error occurred while verifying your information. Please try again.');
+        setShowPopup(true);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error verifying contact:', error);
-      setPopupMessage('An error occurred while verifying your phone number. Please try again.');
+    } else {
+      setPopupMessage('Please fill in all required fields correctly.');
       setShowPopup(true);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -126,14 +143,6 @@ const RegistrationMedianet = () => {
     setFormData(prev => ({ ...prev, [name]: processedValue }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { isValid } = validateForm();
-    if (isValid && !isLoading) {
-      fetchContactsData();
-    }
-  };
-
   const selectedCountry = COUNTRY_DATA.find(country => country.code === formData.countryCode);
 
   return (
@@ -144,7 +153,7 @@ const RegistrationMedianet = () => {
         </div>
 
         <div className="form-container">
-          <h1 className="title">Register Now!</h1>
+          <h1 className="title-registration">Register Now!</h1>
           <form onSubmit={handleSubmit} className="form">
             <div className="input-container">
               <label
@@ -229,38 +238,103 @@ const RegistrationMedianet = () => {
               </div>
             </div>
 
-            <div className="referral-container">
-              <div className="referral-select-container">
-                <label className="select-label">Referral Type (Optional)</label>
-                <select
-                  name="referralType"
-                  id="referralType"
-                  value={formData.referralType}
-                  onChange={handleChange}
-                  className="referral-select"
-                >
-                  <option value="">Select...</option>
-                  <option value="Employee">Medianet</option>
-                  <option value="Dealer">Dealer</option>
-                </select>
-              </div>
-              <div className="input-container referral-input">
+            <div className="address-container">
+              <h2 className="address-title">Installation Address</h2>
+              <div className="input-container">
                 <label
-                  className={`floating-label ${formData.referralCode ? 'active' : ''}`}
-                  materials
-                  htmlFor="referralCode"
+                  className={`floating-label ${formData.fullAddress ? 'active' : ''}`}
+                  htmlFor="fullAddress"
                 >
-                  Referral phone number
+                  Full Address *
                 </label>
                 <input
                   type="text"
-                  name="referralCode"
-                  id="referralCode"
-                  value={formData.referralCode}
+                  name="fullAddress"
+                  id="fullAddress"
+                  value={formData.fullAddress}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="input referral-input-field"
+                  className={`input ${touched.fullAddress && errors.fullAddress ? 'error-border' : ''}`}
                 />
+                {touched.fullAddress && errors.fullAddress && (
+                  <span className="error">{errors.fullAddress}</span>
+                )}
+              </div>
+
+              <div className="input-container">
+                <label
+                  className={`floating-label ${formData.addressType ? 'active' : ''}`}
+                  htmlFor="addressType"
+                >
+                  Address Type
+                </label>
+                <select
+                  name="addressType"
+                  id="addressType"
+                  value={formData.addressType}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="Home">Home</option>
+                  <option value="Business">Business</option>
+                  <option value="Alternative">Alternative</option>
+                </select>
+              </div>
+
+              <div className="input-container">
+                <label
+                  className={`floating-label ${formData.road ? 'active' : ''}`}
+                  htmlFor="road"
+                >
+                  Road
+                </label>
+                <input
+                  type="text"
+                  name="road"
+                  id="road"
+                  value={formData.road}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
+              <div className="address-row">
+                <div className="input-container">
+                  <label
+                    className={`floating-label ${formData.ward ? 'active' : ''}`}
+                    htmlFor="ward"
+                  >
+                    Ward
+                  </label>
+                  <input
+                    type="text"
+                    name="ward"
+                    id="ward"
+                    value={formData.ward}
+                    onChange={handleChange}
+                    className="input"
+                  />
+                </div>
+                <div className="input-container">
+                  <label
+                    className={`floating-label ${formData.city ? 'active' : ''}`}
+                    htmlFor="city"
+                  >
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    id="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`input ${touched.city && errors.city ? 'error-border' : ''}`}
+                  />
+                  {touched.city && errors.city && (
+                    <span className="error">{errors.city}</span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -288,4 +362,4 @@ const RegistrationMedianet = () => {
   );
 };
 
-export default RegistrationMedianet;
+export default RegistrationKycScreen;

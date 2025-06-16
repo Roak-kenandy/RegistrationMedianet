@@ -114,12 +114,18 @@
 
 // export default App;
 
+'use client';
+
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import RegistrationCategory from './components/RegistrationCategory';
 import RegistrationMedianet from './components/RegistrationMedianet';
 import RegistrationOtp from './components/RegistrationOtp';
+import RegistrationTvOtp from './components/RegistrationKycOtp';
 import RegistrationPlan from './components/RegistrationPlan';
+import RegistrationTvPlan from './components/RegistrationKycPlan';
 import RegistrationSuccess from './components/RegistrationSucess';
 import RegistrationExisting from './components/RegistrationExisting';
+import RegistrationKycScreen from './components/RegistrationKycScreen';
 import { useEffect, useState } from 'react';
 import './App.css';
 
@@ -131,6 +137,7 @@ function NavigationController() {
     localStorage.getItem('medianetCompleted') === 'true'
   );
   const [isNavigating, setIsNavigating] = useState(false);
+  const [hasReachedCategory, setHasReachedCategory] = useState(false);
 
   // Sync isMedianetCompleted with localStorage changes via custom event
   useEffect(() => {
@@ -146,70 +153,88 @@ function NavigationController() {
     };
   }, []);
 
+  // Track when user reaches registration-category
+  useEffect(() => {
+    if (location.pathname === '/registration-category') {
+      setHasReachedCategory(true);
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     const protectedRoutes = [
       '/registration-existing',
       '/registration-otp',
+      '/registration-tv-otp',
       '/registration-plan',
+      '/registration-tv-plan',
       '/registration-success',
     ];
 
-    // Skip checks if navigating or on medianet page
-    if (isNavigating || location.pathname === '/registration-medianet') {
+    // Skip checks if navigating
+    if (isNavigating) {
       return;
     }
 
-    // Protect routes
+    // Protect routes - redirect to category if medianet not completed
     if (protectedRoutes.includes(location.pathname) && !isMedianetCompleted) {
       setIsNavigating(true);
-      navigate('/registration-medianet', { replace: true });
-      setTimeout(() => setIsNavigating(false), 1000); // Lock for 1s
+      navigate('/registration-category', { replace: true });
+      setTimeout(() => setIsNavigating(false), 1000);
       return;
     }
 
-    // Prevent back navigation for these routes
-    const noBackRoutes = [
-      '/registration-medianet',
-    ];
-
-    // Redirect to medianet on back navigation for these routes
-    const redirectOnBackRoutes = [
-      '/registration-otp',
-      '/registration-existing',
-      '/registration-plan',
-      '/registration-success',
-    ];
-
-    if (noBackRoutes.includes(location.pathname)) {
-      // Push current state
-      window.history.pushState({ page: location.pathname }, null, location.pathname);
+    // Once user has reached registration-category, prevent all back navigation
+    if (hasReachedCategory) {
+      // Clear any existing history and push current state
+      window.history.pushState({ page: location.pathname, preventBack: true }, null, location.pathname);
 
       const handlePopState = (event) => {
         if (isNavigating) return; // Ignore during programmatic navigation
+        
         event.preventDefault();
-        // Stay on current page
-        window.history.pushState({ page: location.pathname }, null, location.pathname);
+        event.stopPropagation();
+        
+        // Always stay on current page or redirect to category
+        if (location.pathname === '/registration-category') {
+          // Stay on category page
+          window.history.pushState({ page: location.pathname, preventBack: true }, null, location.pathname);
+        } else {
+          // Redirect to category from any other page
+          setIsNavigating(true);
+          navigate('/registration-category', { replace: true });
+          setTimeout(() => setIsNavigating(false), 1000);
+        }
+      };
+
+      // Also handle browser back button attempts
+      const handleBeforeUnload = (event) => {
+        // This won't prevent back navigation but can show a warning
+        event.preventDefault();
+        return event.returnValue = '';
       };
 
       window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
-    } else if (redirectOnBackRoutes.includes(location.pathname)) {
-      // Push current state
-      window.history.pushState({ page: location.pathname }, null, location.pathname);
-
-      const handlePopState = (event) => {
-        if (isNavigating) return; // Ignore during programmatic navigation
-        event.preventDefault();
-        // Redirect to medianet
-        setIsNavigating(true);
-        navigate('/registration-medianet', { replace: true });
-        setTimeout(() => setIsNavigating(false), 1000);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
       };
-
-      window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
     }
-  }, [location.pathname, isMedianetCompleted, navigate, isNavigating]);
+  }, [location.pathname, isMedianetCompleted, navigate, isNavigating, hasReachedCategory]);
+
+  // Additional protection: Clear browser history when reaching category
+  useEffect(() => {
+    if (location.pathname === '/registration-category' && hasReachedCategory) {
+      // Replace current history entry to prevent back navigation
+      window.history.replaceState({ page: '/registration-category', preventBack: true }, null, '/registration-category');
+      
+      // Push multiple entries to make back navigation more difficult
+      for (let i = 0; i < 5; i++) {
+        window.history.pushState({ page: '/registration-category', preventBack: true }, null, '/registration-category');
+      }
+    }
+  }, [location.pathname, hasReachedCategory]);
 
   return null;
 }
@@ -219,6 +244,14 @@ function App() {
     if (localStorage.getItem('medianetCompleted') === null) {
       localStorage.setItem('medianetCompleted', 'false');
     }
+
+    // Disable browser back button globally
+    window.addEventListener('popstate', function(event) {
+      window.history.pushState(null, null, window.location.pathname);
+    });
+    
+    // Push initial state
+    window.history.pushState(null, null, window.location.pathname);
   }, []);
 
   return (
@@ -226,13 +259,17 @@ function App() {
       <div className="App">
         <NavigationController />
         <Routes>
-          <Route path="/" element={<Navigate to="/registration-medianet" replace />} />
+          <Route path="/" element={<Navigate to="/registration-category" replace />} />
+          <Route path="/registration-category" element={<RegistrationCategory />} />
           <Route path="/registration-medianet" element={<RegistrationMedianet />} />
           <Route path="/registration-existing" element={<RegistrationExisting />} />
           <Route path="/registration-otp" element={<RegistrationOtp />} />
+          <Route path="/registration-tv-otp" element={<RegistrationTvOtp />} />
           <Route path="/registration-plan" element={<RegistrationPlan />} />
+          <Route path="/registration-tv-plan" element={<RegistrationTvPlan />} />
           <Route path="/registration-success" element={<RegistrationSuccess />} />
-          <Route path="*" element={<Navigate to="/registration-medianet" replace />} />
+          <Route path="/registration-device" element={<RegistrationKycScreen />} />
+          <Route path="*" element={<Navigate to="/registration-category" replace />} />
         </Routes>
       </div>
     </Router>
