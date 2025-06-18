@@ -37,7 +37,7 @@ const TV_SERVICE_PRODUCT_ID = process.env.TV_SERVICE_PRODUCT_ID;
  */
 const postRegisterProfile = async (req, res) => {
     try {
-        const { firstName, lastName, phoneNumber, countryCode, referralCode, referralType } = req.body;
+        const { firstName, lastName, phoneNumber, countryCode, referralCode, referralType, registerType } = req.body;
 
         if (!firstName || !lastName || !phoneNumber || !countryCode) {
             return res.status(400).json({ message: 'All required fields must be provided' });
@@ -49,7 +49,8 @@ const postRegisterProfile = async (req, res) => {
             phoneNumber,
             countryCode,
             referralCode,
-            referralType
+            referralType,
+            registerType
         );
 
         return res.status(201).json({

@@ -141,7 +141,8 @@ export const registrationKycService = {
         phoneNumber: formData.phoneNumber,
         countryCode: 'MDV',
         referralCode: formData.referralCode,
-        referralType: formData.referralType
+        referralType: formData.referralType,
+        registerType: 'TV'
       };
       const response = await fetch(`${MTV_BASE_URL}/mtvusers`, {
         method: 'POST',
