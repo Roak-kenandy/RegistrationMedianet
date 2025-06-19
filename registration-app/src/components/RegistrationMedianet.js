@@ -6,10 +6,12 @@ import { registrationService } from '../services/registrationService';
 import { COUNTRY_DATA } from '../config/constants';
 import Popup from './Popup';
 import logoImage from '../assests/medianet-app-image.jpg';
+import { useMedianet } from '../context/MedianetContext'; // ✅ Import the context
 import '../styles/RegistrationMedianet.css';
 
 const RegistrationMedianet = () => {
   const navigate = useNavigate();
+  const { completeMedianet } = useMedianet(); // ✅ Use context method
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -58,8 +60,7 @@ const RegistrationMedianet = () => {
       setIsLoading(true);
       const data = await registrationService.verifyPhoneNumber(formData.phoneNumber);
 
-      localStorage.setItem('medianetCompleted', 'true');
-      window.dispatchEvent(new Event('medianetCompletedChange'));
+      completeMedianet(); // ✅ Set context + safe storage
 
       if (data.length > 0) {
         navigate('/registration-existing', {
@@ -247,7 +248,6 @@ const RegistrationMedianet = () => {
               <div className="input-container referral-input">
                 <label
                   className={`floating-label ${formData.referralCode ? 'active' : ''}`}
-                  materials
                   htmlFor="referralCode"
                 >
                   Referral phone number
@@ -270,11 +270,7 @@ const RegistrationMedianet = () => {
                 disabled={!isFormValid || isLoading}
                 className={`submit-button ${isLoading ? 'loading' : ''}`}
               >
-                {isLoading ? (
-                  <div className="spinner-medianet"></div>
-                ) : (
-                  'Continue'
-                )}
+                {isLoading ? <div className="spinner-medianet"></div> : 'Continue'}
               </button>
             </div>
           </form>

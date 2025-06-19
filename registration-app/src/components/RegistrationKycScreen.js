@@ -7,9 +7,11 @@ import { COUNTRY_DATA } from '../config/constants';
 import Popup from './Popup';
 import logoImage from '../assests/medianet-app-image.jpg';
 import '../styles/RegistrationKycScreen.css';
+import { useMedianet } from '../context/MedianetContext'; // ✅ Import the context
 
 const RegistrationKycScreen = () => {
   const navigate = useNavigate();
+    const { completeMedianet } = useMedianet(); // ✅ Use context method
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -80,6 +82,7 @@ const RegistrationKycScreen = () => {
 
         // Simulate API call to verify phone number
         const data = await registrationService.verifyTvPhoneNumber(fullPhoneNumber);
+        completeMedianet();
 
         if (data.length > 0) {
           navigate('/registration-existing', {
