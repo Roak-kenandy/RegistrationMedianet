@@ -28,6 +28,8 @@
     max-width: 200px;
     padding: 0 10px;
     z-index: 1;
+    display: flex;
+    justify-content: center;
 }
 
 .logo-image {

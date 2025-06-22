@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationSuccess.css';
 
 const RegistrationSuccess = () => {

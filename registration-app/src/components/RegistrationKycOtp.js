@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { smsService } from '../services/smsService';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationOtp.css';
 
 const RegistrationKycOtp = () => {

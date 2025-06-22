@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { registrationService } from '../services/registrationService';
 import { COUNTRY_DATA } from '../config/constants';
 import Popup from './Popup';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import { useMedianet } from '../context/MedianetContext'; // ✅ Import the context
 import '../styles/RegistrationMedianet.css';
 

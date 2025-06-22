@@ -9,7 +9,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   MedianetProvider,
   useMedianet,
@@ -31,6 +31,7 @@ function NavigationController() {
   const location = useLocation();
   const { isMedianetCompleted } = useMedianet();
   const [isNavigating, setIsNavigating] = useState(false);
+  const navigationTimeoutRef = useRef(null);
 
   useEffect(() => {
     const protectedRoutes = [
@@ -42,16 +43,25 @@ function NavigationController() {
       '/registration-success',
     ];
 
-    if (isNavigating || location.pathname === '/registration-category') return;
+    // Clear any existing timeout
+    if (navigationTimeoutRef.current) {
+      clearTimeout(navigationTimeoutRef.current);
+    }
+
+    // Initial protection check
+    if (location.pathname === '/registration-category') return;
 
     if (protectedRoutes.includes(location.pathname) && !isMedianetCompleted) {
-      setIsNavigating(true);
-      navigate('/registration-category', { replace: true });
-      setTimeout(() => setIsNavigating(false), 1000);
+      if (!isNavigating) {
+        setIsNavigating(true);
+        navigate('/registration-category', { replace: true });
+        navigationTimeoutRef.current = setTimeout(() => {
+          setIsNavigating(false);
+        }, 200);
+      }
       return;
     }
 
-    const noBackRoutes = ['/registration-category'];
     const redirectOnBackRoutes = [
       '/registration-otp',
       '/registration-tv-otp',
@@ -61,26 +71,83 @@ function NavigationController() {
       '/registration-success',
     ];
 
-    const handlePopState = (event) => {
-      if (isNavigating) return;
-      event.preventDefault();
+    const noBackRoutes = ['/registration-category'];
 
+    const handlePopState = (event) => {
+      // Prevent multiple rapid navigations
+      if (isNavigating) {
+        event.preventDefault();
+        window.history.pushState(
+          { preventBack: true, timestamp: Date.now() }, 
+          null, 
+          location.pathname
+        );
+        return;
+      }
+
+      // Handle back button for routes that should redirect to category
       if (redirectOnBackRoutes.includes(location.pathname)) {
+        event.preventDefault();
         setIsNavigating(true);
+        
+        // Immediately push state to prevent further back navigation
+        window.history.pushState(
+          { preventBack: true, timestamp: Date.now() }, 
+          null, 
+          location.pathname
+        );
+        
         navigate('/registration-category', { replace: true });
-        setTimeout(() => setIsNavigating(false), 1000);
-      } else if (noBackRoutes.includes(location.pathname)) {
-        window.history.pushState({ page: location.pathname }, null, location.pathname);
+        
+        navigationTimeoutRef.current = setTimeout(() => {
+          setIsNavigating(false);
+        }, 200);
+      } 
+      // Handle back button for routes that should not allow back navigation
+      else if (noBackRoutes.includes(location.pathname)) {
+        event.preventDefault();
+        window.history.pushState(
+          { preventBack: true, timestamp: Date.now() }, 
+          null, 
+          location.pathname
+        );
       }
     };
 
-    window.history.pushState({ page: location.pathname }, null, location.pathname);
-    window.addEventListener('popstate', handlePopState);
+    // Add back button control for specific routes
+    const needsBackControl = [
+      '/registration-category',
+      ...redirectOnBackRoutes
+    ];
 
+    if (needsBackControl.includes(location.pathname)) {
+      // Push initial state with timestamp to track it
+      window.history.pushState(
+        { preventBack: true, timestamp: Date.now() }, 
+        null, 
+        location.pathname
+      );
+      
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    // Cleanup function
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
     };
   }, [location.pathname, isMedianetCompleted, navigate, isNavigating]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return null;
 }

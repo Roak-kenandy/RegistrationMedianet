@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { registrationService } from '../services/registrationService';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationPlan.css';
 import { debounce } from 'lodash';
 

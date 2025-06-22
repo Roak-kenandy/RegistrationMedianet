@@ -27,6 +27,8 @@
     max-width: clamp(150px, 20vw, 200px);
     padding: 0 10px;
     z-index: 10;
+    display: flex;
+    justify-content: center;
 }
 
 .logo-image {
@@ -52,6 +54,10 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: clamp(10px, 2vw, 20px);
+        background: linear-gradient(to right, #fff, #FFD700);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .highlight {
@@ -203,6 +209,7 @@
     .logo {
         max-width: 120px;
         top: 0;
+        padding: 30px 15px;
     }
 
     .logo-image {

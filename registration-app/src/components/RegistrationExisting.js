@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/RegistrationExisting.css';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import { smsService } from '../services/smsService';
 import Popup from './Popup';
 

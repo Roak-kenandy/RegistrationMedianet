@@ -33,6 +33,8 @@
     max-width: 200px;
     padding: 0 10px;
     z-index: 1;
+    display: flex;
+    justify-content: center;
 }
 
 .logo-image {
@@ -300,6 +302,7 @@
     .logo {
         max-width: 150px;
         top: 0px;
+        padding: 30px 15px;
     }
 
     .logo-image {

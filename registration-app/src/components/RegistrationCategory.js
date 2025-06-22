@@ -1,52 +1,65 @@
 'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
+import mobileImage from '../assests/medianet-mobile.png';
+import tvImage from '../assests/medianet-tv.png';
 import '../styles/RegistrationCategory.css';
 
 const RegistrationCategory = () => {
   const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [tvOn, setTvOn] = useState(false);
 
-  const handleMobileClick = () => {
-    navigate('/registration-medianet');
-  };
+  useEffect(() => {
+    // Trigger animations after component mounts
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 300);
 
-  const handleTvClick = () => {
-    navigate('/registration-device');
-  };
+    // Turn on TV after mobile animation
+    const tvTimer = setTimeout(() => {
+      setTvOn(true);
+    }, 1200);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(tvTimer);
+    };
+  }, []);
 
   return (
     <div className="category-container">
-      <div className="logo">
+      <div className="logo-header">
         <img src={logoImage} alt="Medianet Logo" className="logo-image" />
       </div>
-      <div className="content-wrapper">
-        <h1 className="title">
-          How do you want to <span className="highlight">Entertain</span>?
-        </h1>
-        <div className="category-list">
-          <div className="category-item mobile-device" onClick={handleMobileClick}>
-            <div className="device-notch"></div>
-            <div className="category-content">
-              <div className="device-screen">
-                <h2 className="category-title">Mobile</h2>
-                <p className="category-description">Stream on your phone anytime, anywhere</p>
-                <div className="category-icon">📱</div>
-              </div>
-              <div className="device-home-bar"></div>
-            </div>
+      <h1 className="entertainment-header">How do you want to Entertain?</h1>
+      
+      <div className="devices-container">
+        {/* Mobile Device Card */}
+        <div className="device-card">
+          <img src={mobileImage} alt="Mobile Streaming" className={`device-image mobile-image ${isLoaded ? 'mobile-slide-in' : ''}`} />
+          <div className="device-info">
+            <h2 className="device-title">Stream on your phone</h2>
+            <p className="device-subtitle">Anytime, anywhere</p>
+            <button className="btn-3d mobile-btn" onClick={() => navigate('/registration-medianet')}>
+              Continue on Mobile
+            </button>
           </div>
-          
-          <div className="category-item tv-device" onClick={handleTvClick}>
-            <div className="category-content">
-              <div className="device-screen">
-                <h2 className="category-title">TV</h2>
-                <p className="category-description">Enjoy on your big screen at home</p>
-                <div className="category-icon">📺</div>
-              </div>
-              <div className="device-stand"></div>
-            </div>
+        </div>
+
+        {/* TV Device Card */}
+        <div className="device-card">
+          <div className="tv-image-wrapper">
+            <img src={tvImage} alt="TV Streaming" className={`device-image tv-image ${tvOn ? 'tv-flash-animation' : ''}`} />
+            <div className={`tv-flash-overlay ${tvOn ? 'flash-active' : ''}`}></div>
+          </div>
+          <div className="device-info">
+            <h2 className="device-title">Enjoy on your big screen</h2>
+            <p className="device-subtitle">At home comfort</p>
+            <button className="btn-3d tv-btn" onClick={() => navigate('/registration-device')}>
+              Continue on TV
+            </button>
           </div>
         </div>
       </div>
