@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoImage from '../assests/medianet-app-image.png';
 import mobileImage from '../assests/medianet-mobile.webp';
-import tvImage from '../assests/medianet-tv.png';
+import tvImage from '../assests/medianet-tv.webp';
 import '../styles/RegistrationCategory.css';
 
 const RegistrationCategory = () => {
