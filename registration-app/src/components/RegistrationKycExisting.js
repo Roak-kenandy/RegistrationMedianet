@@ -31,7 +31,7 @@ const RegistrationKycExisting = () => {
         localStorage.setItem('registrationState', JSON.stringify({ data: subscriptions, phoneNumber, firstName, lastName }));
 
         // Check if required state is missing
-        if ((!data.length && !phoneNumber)) {
+        if (!data.length && !phoneNumber) {
             navigate('/registration-medianet');
             return;
         }
@@ -56,7 +56,7 @@ const RegistrationKycExisting = () => {
     const handleClosePopup = () => {
         setShowPopup(false);
         if (redirectAfterPopup) {
-            navigate('/registration-medianet', { state: { data: subscriptions, phoneNumber, firstName, lastName } });
+            navigate('/registration-category', { state: { data: subscriptions, phoneNumber, firstName, lastName } });
             setRedirectAfterPopup(false);
         }
     };
@@ -81,7 +81,7 @@ const RegistrationKycExisting = () => {
                 setShowPopup(true);
                 setRedirectAfterPopup(true);
             } else if (subscription.state?.toLowerCase() === 'inactive' || subscription.state?.toLowerCase() === 'churned') {
-                localStorage.setItem('returningTo', '/registration-medianet');
+                localStorage.setItem('returningTo', '/registration-category');
                 window.location.href = 'https://my.medianet.mv';
             }
         } catch (error) {
@@ -110,71 +110,48 @@ const RegistrationKycExisting = () => {
                     {subscriptions.length > 0 ? (
                         subscriptions.map((subscription, index) => (
                             <div key={index} className="subscription-card">
-                                {subscription.state?.toLowerCase() === 'churned' || subscription.state?.toLowerCase() === 'inactive' ? (
-                                    <>
-                                        <p className="churned-message">
-                                            Please subscribe to a package using the button below.
-                                        </p>
+                                <div className="field-group">
+                                    <span className="field-label">Service Code</span>
+                                    <span className="field-value">{maskString(subscription.value)}</span>
+                                </div>
+                                <div className="field-group">
+                                    <span className="field-label">Status</span>
+                                    <span className="field-value status">
+                                        <span className={`status-indicator ${subscription.state?.toLowerCase() || 'unknown'}`}></span>
+                                        {subscription.state || 'N/A'}
+                                    </span>
+                                </div>
+                                <div className="field-group">
+                                    <span className="field-label">Start Date</span>
+                                    <span className="field-value">{subscription.start_date || 'N/A'}</span>
+                                </div>
+                                <div className="field-group">
+                                    <span className="field-label">End Date</span>
+                                    <span className="field-value">{subscription.end_date || 'N/A'}</span>
+                                </div>
+                                <div className="button-group">
+                                    <button
+                                        className={`action-button ${subscription.state?.toLowerCase() || 'unknown'}`}
+                                        onClick={() => handleButtonClick(subscription, index)}
+                                        disabled={loadingStates[index]}
+                                    >
+                                        {loadingStates[index] ? (
+                                            <span className="spinner-existing"></span>
+                                        ) : (
+                                            subscription.state?.toLowerCase() === 'active'
+                                                ? 'Resend Login Details'
+                                                : 'Subscribe'
+                                        )}
+                                    </button>
+                                    {subscription.state?.toLowerCase() === 'active' && (
                                         <button
-                                            className="action-button inactive"
-                                            onClick={() => handleButtonClick(subscription, index)}
-                                            disabled={loadingStates[index]}
+                                            className="action-button registration"
+                                            onClick={handleGoToRegistration}
                                         >
-                                            {loadingStates[index] ? (
-                                                <span className="spinner-existing"></span>
-                                            ) : (
-                                                'Subscribe'
-                                            )}
+                                            Go to Registration
                                         </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="field-group">
-                                            <span className="field-label">Service Code</span>
-                                            <span className="field-value">{maskString(subscription.value)}</span>
-                                        </div>
-                                        <div className="field-group">
-                                            <span className="field-label">Status</span>
-                                            <span className="field-value status">
-                                                <span className={`status-indicator ${subscription.state?.toLowerCase() || 'unknown'}`}></span>
-                                                {subscription.state || 'N/A'}
-                                            </span>
-                                        </div>
-                                        <div className="field-group">
-                                            <span className="field-label">Start Date</span>
-                                            <span className="field-value">{subscription.start_date || 'N/A'}</span>
-                                        </div>
-                                        <div className="field-group">
-                                            <span className="field-label">End Date</span>
-                                            <span className="field-value">{subscription.end_date || 'N/A'}</span>
-                                        </div>
-                                        <div className="button-group">
-                                            <button
-                                                className={`action-button ${subscription.state?.toLowerCase() || 'unknown'}`}
-                                                onClick={() => handleButtonClick(subscription, index)}
-                                                disabled={loadingStates[index]}
-                                            >
-                                                {loadingStates[index] ? (
-                                                    <span className="spinner-existing"></span>
-                                                ) : (
-                                                    subscription.state?.toLowerCase() === 'active'
-                                                        ? 'Resend Login Details'
-                                                        : subscription.state?.toLowerCase() === 'inactive'
-                                                            ? 'Subscribe'
-                                                            : subscription.state?.toLowerCase() === 'churned'
-                                                                ? 'Subscribe'
-                                                                : 'N/A'
-                                                )}
-                                            </button>
-                                            <button
-                                                className="action-button registration"
-                                                onClick={handleGoToRegistration}
-                                            >
-                                                Go to Registration
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         ))
                     ) : (
