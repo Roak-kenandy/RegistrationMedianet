@@ -85,7 +85,7 @@ const RegistrationKycScreen = () => {
         completeMedianet();
 
         if (data.length > 0) {
-          navigate('/registration-existing', {
+          navigate('/registration-tv-existing', {
             state: {
               data,
               phoneNumber: fullPhoneNumber,

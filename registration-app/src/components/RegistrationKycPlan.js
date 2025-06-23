@@ -83,7 +83,8 @@ const RegistrationKycPlan = () => {
         const userLastName = formData.lastName || '';
         const phoneNumber = formData.phoneNumber || '';
 
-        const message = `Hi ${userFirstName} ${userLastName},\n\nYour 1-day free trial package has been activated! If you would like to subscribe to a monthly package, please click the following link:\n\nhttps://my.medianet.mv`;
+const message = `Hi ${userFirstName} ${userLastName},\n\nYour 1-day free trial for Medianet TV has been successfully activated! Enjoy unlimited access to your favorite channels today.\n\nTo continue watching without interruption, subscribe to a monthly TV package here:\n\nhttps://my.medianet.mv`;
+
 
         await smsService.sendOtp(phoneNumber, message);
         success = true;

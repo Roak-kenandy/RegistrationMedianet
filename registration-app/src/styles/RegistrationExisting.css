@@ -54,7 +54,7 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: clamp(10px, 2vw, 20px);
-        background: linear-gradient(to right, #fff, #FFD700);
+    background: linear-gradient(to right, #fff, #FFD700);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -149,6 +149,12 @@
     width: 100%;
 }
 
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 .action-button {
     padding: clamp(10px, 2vw, 14px);
     border: none;
@@ -157,9 +163,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 100%;
+    flex: 1;
     text-align: center;
-    margin-top: 10px;
 }
 
 .action-button.active {
@@ -198,6 +203,16 @@
     cursor: not-allowed;
 }
 
+.action-button.registration {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.action-button.registration:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+}
+
 /* Responsive Design */
 
 /* Mobile Styles */
@@ -234,6 +249,11 @@
         font-size: 28px;
         padding-top: 1rem;
     }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 
 /* Tablet Styles */
@@ -249,6 +269,11 @@
     .content-wrapper {
         max-width: 400px;
     }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
+    }
 }
 
 /* Small Desktop Styles */
@@ -259,6 +284,11 @@
 
     .content-wrapper {
         max-width: 500px;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
     }
 }
 
@@ -279,6 +309,11 @@
     .title {
         font-size: 36px;
         padding-top: 2rem;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
     }
 }
 

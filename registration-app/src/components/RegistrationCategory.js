@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoImage from '../assests/medianet-app-image.png';
-import mobileImage from '../assests/medianet-mobile.png';
+import mobileImage from '../assests/medianet-mobile.webp';
 import tvImage from '../assests/medianet-tv.png';
 import '../styles/RegistrationCategory.css';
 

@@ -24,6 +24,7 @@ import RegistrationTvPlan from './components/RegistrationKycPlan';
 import RegistrationSuccess from './components/RegistrationSucess';
 import RegistrationExisting from './components/RegistrationExisting';
 import RegistrationKycScreen from './components/RegistrationKycScreen';
+import RegistrationKycExisting from './components/RegistrationKycExisting';
 import './App.css';
 
 function NavigationController() {
@@ -167,6 +168,7 @@ function AppRoutes() {
         <Route path="/registration-tv-plan" element={<RegistrationTvPlan />} />
         <Route path="/registration-success" element={<RegistrationSuccess />} />
         <Route path="/registration-device" element={<RegistrationKycScreen />} />
+        <Route path="/registration-tv-existing" element={<RegistrationKycExisting />} />
         <Route path="*" element={<Navigate to="/registration-category" replace />} />
       </Routes>
     </>
