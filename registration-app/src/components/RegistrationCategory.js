@@ -33,7 +33,7 @@ const RegistrationCategory = () => {
       <div className="logo-header">
         <img src={logoImage} alt="Medianet Logo" className="logo-image" />
       </div>
-      <h1 className="entertainment-header">How do you want to Entertain?</h1>
+      <h1 className="entertainment-header">Select. Stream. Enjoy.</h1>
       
       <div className="devices-container">
         {/* Mobile Device Card */}
@@ -41,7 +41,7 @@ const RegistrationCategory = () => {
           <img src={mobileImage} alt="Mobile Streaming" className={`device-image mobile-image ${isLoaded ? 'mobile-slide-in' : ''}`} />
           <div className="device-info">
             <h2 className="device-title">Stream on your phone</h2>
-            <p className="device-subtitle">Anytime, anywhere</p>
+            <p className="device-subtitle">anytime, anywhere!</p>
             <button className="btn-3d mobile-btn" onClick={() => navigate('/registration-medianet')}>
               Continue on Mobile
             </button>
@@ -56,7 +56,7 @@ const RegistrationCategory = () => {
           </div>
           <div className="device-info">
             <h2 className="device-title">Enjoy on your big screen</h2>
-            <p className="device-subtitle">At home comfort</p>
+            <p className="device-subtitle">at home comfort!</p>
             <button className="btn-3d tv-btn" onClick={() => navigate('/registration-device')}>
               Continue on TV
             </button>
