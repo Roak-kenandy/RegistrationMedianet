@@ -32,7 +32,7 @@ const RegistrationKycExisting = () => {
 
         // Check if required state is missing
         if (!data.length && !phoneNumber) {
-            navigate('/registration-medianet');
+            navigate('/registration-category');
             return;
         }
 
@@ -94,8 +94,44 @@ const RegistrationKycExisting = () => {
     };
 
     const handleGoToRegistration = () => {
-        navigate('/registration-device', { state: { data: subscriptions, phoneNumber, firstName, lastName } });
+        navigate('/registration-device', { 
+            state: { 
+                data: subscriptions, 
+                phoneNumber, 
+                firstName, 
+                lastName, 
+                isExistingUser: true // Pass flag to indicate existing user
+            } 
+        });
     };
+
+    // Updated logic for showing registration button
+    const shouldShowRegistrationButton = () => {
+        // If user has only one subscription and it's "ONE DAY TRIAL", don't show button regardless of status
+        if (subscriptions.length === 1 && subscriptions[0].product_name === 'ONE DAY TRIAL') {
+            return false;
+        }
+        
+        // Check if there are active subscriptions (excluding ONE DAY TRIAL)
+        const hasActiveNonTrialSubscriptions = subscriptions.some(sub => 
+            sub.state?.toLowerCase() === 'active' && sub.product_name == 'ONE DAY TRIAL'
+        );
+        
+        // Check if there's an active ONE DAY TRIAL
+        const hasActiveOneDayTrial = subscriptions.some(sub => 
+            sub.product_name === 'ONE DAY TRIAL' && sub.state?.toLowerCase() === 'active'
+        );
+        
+        // If there's an active ONE DAY TRIAL, don't show the button
+        if (hasActiveOneDayTrial) {
+            return false;
+        }
+        
+        // Show button if there are active non-trial subscriptions and total subscriptions >= 2
+        return hasActiveNonTrialSubscriptions && subscriptions.length >= 2;
+    };
+
+    const showRegistrationButton = shouldShowRegistrationButton();
 
     return (
         <div className="existing-container">
@@ -113,6 +149,10 @@ const RegistrationKycExisting = () => {
                                 <div className="field-group">
                                     <span className="field-label">Service Code</span>
                                     <span className="field-value">{maskString(subscription.value)}</span>
+                                </div>
+                                <div className="field-group">
+                                    <span className="field-label">Product Name</span>
+                                    <span className="field-value">{subscription.product_name || 'N/A'}</span>
                                 </div>
                                 <div className="field-group">
                                     <span className="field-label">Status</span>
@@ -143,14 +183,6 @@ const RegistrationKycExisting = () => {
                                                 : 'Subscribe'
                                         )}
                                     </button>
-                                    {subscription.state?.toLowerCase() === 'active' && (
-                                        <button
-                                            className="action-button registration"
-                                            onClick={handleGoToRegistration}
-                                        >
-                                            Go to Registration
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                         ))
@@ -158,6 +190,14 @@ const RegistrationKycExisting = () => {
                         <p className="no-data">No existing subscriptions found.</p>
                     )}
                 </div>
+                {showRegistrationButton && (
+                    <button
+                        className="action-button registration"
+                        onClick={handleGoToRegistration}
+                    >
+                        Go to Registration
+                    </button>
+                )}
             </div>
             {showPopup && (
                 <Popup message={popupMessage} onClose={handleClosePopup} />

@@ -866,6 +866,7 @@ const getTvContactDetails = async (req, res) => {
 
                                         subscriptionsWithDetails.push({
                                             state: subscription.state,
+                                            product_name: devicesData.content[0].services[0].product.name,
                                             start_date: formatDate(subscription.first_activation_date),
                                             end_date: formatDate(subscription.billing_info.bill_up_date),
                                             value: deviceValues.length > 0 ? deviceValues[0] : null, // Take first value if exists

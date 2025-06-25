@@ -58,6 +58,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    padding-top: 5rem;
 }
 
 .highlight {
@@ -206,6 +207,8 @@
 .action-button.registration {
     background-color: #007bff;
     color: #fff;
+    width: 100%; /* Ensure full width for single button */
+    margin-top: 20px; /* Add spacing above the button */
 }
 
 .action-button.registration:hover {
@@ -247,12 +250,16 @@
 
     .title {
         font-size: 28px;
-        padding-top: 1rem;
+        padding-top: 5rem;
     }
 
     .button-group {
         flex-direction: column;
         gap: 8px;
+    }
+
+    .action-button.registration {
+        margin-top: 15px;
     }
 }
 
@@ -274,6 +281,10 @@
         flex-direction: row;
         gap: 10px;
     }
+
+    .action-button.registration {
+        margin-top: 15px;
+    }
 }
 
 /* Small Desktop Styles */
@@ -289,6 +300,10 @@
     .button-group {
         flex-direction: row;
         gap: 10px;
+    }
+
+    .action-button.registration {
+        margin-top: 15px;
     }
 }
 
@@ -314,6 +329,10 @@
     .button-group {
         flex-direction: row;
         gap: 10px;
+    }
+
+    .action-button.registration {
+        margin-top: 20px;
     }
 }
 
