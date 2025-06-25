@@ -848,44 +848,52 @@ const getTvContactDetails = async (req, res) => {
                     const medianetTvTag = tagsData.content && tagsData.content.some(tag => tag.name === "Medianet TV");
 
                     if (medianetTvTag) {
-                        // Fetch subscriptions for contacts with "Medianet TV" tag
+                        // Fetch services for contacts with "Medianet TV" tag using the new API
                         try {
-                            const subscriptionsData = await fetchContactSubscriptions(contactId);
+                            const servicesUrl = `${CRM_BASE_URL}/contacts/${contactId}/services`;
+                            const servicesResponse = await fetch(servicesUrl, {
+                                method: 'GET',
+                                headers: crmHeaders
+                            });
 
-                            if (subscriptionsData.content && subscriptionsData.content.length > 0) {
-                                for (const subscription of subscriptionsData.content) {
-                                    const subscriptionId = subscription.id;
+                            const servicesData = await servicesResponse.json();
 
-                                    try {
-                                        const devicesData = await fetchSubscriptionDevices(subscriptionId);
-                                        const deviceValues = devicesData.content.map(device => {
-                                            // Extract only the "code" value from custom_fields
-                                            const codeField = device.custom_fields.find(field => field.key === "code");
-                                            return codeField ? codeField.value : null;
-                                        }).filter(value => value !== null); // Remove null values
+                            console.log('servicesData', servicesData.content[0]);
 
-                                        subscriptionsWithDetails.push({
-                                            state: subscription.state,
-                                            product_name: devicesData.content[0].services[0].product.name,
-                                            start_date: formatDate(subscription.first_activation_date),
-                                            end_date: formatDate(subscription.billing_info.bill_up_date),
-                                            value: deviceValues.length > 0 ? deviceValues[0] : null, // Take first value if exists
-                                        });
-                                    } catch (error) {
-                                        console.error(`Error fetching devices for subscription ${subscriptionId}:`, error);
-                                        subscriptionsWithDetails.push({
-                                            state: subscription.state,
-                                            start_date: formatDate(subscription.first_activation_date),
-                                            end_date: formatDate(subscription.billing_info.bill_up_date),
-                                            value: null,
-                                        });
-                                    }
+                            if (!servicesResponse.ok) {
+                                console.error(`Error fetching services for contact ${contactId}:`, servicesData);
+                                subscriptionsWithDetails.push({
+                                    state: null,
+                                    product_name: null,
+                                    start_date: null,
+                                    end_date: null,
+                                    value: null,
+                                });
+                                continue;
+                            }
+
+                            if (servicesData.content && servicesData.content.length > 0) {
+                                for (const service of servicesData.content) {
+                                    // Extract device code from custom_fields, assuming similar structure
+                                    const deviceValues = service.custom_fields?.map(field => {
+                                        return field.key === "code" ? field.value : null;
+                                    }).filter(value => value !== null) || [];
+
+                                    subscriptionsWithDetails.push({
+                                        state: service.state === 'EFFECTIVE' ? 'ACTIVE' : service.state === 'NOT_EFFECTIVE' ? 'INACTIVE' : service.state || null,
+                                        product_name: service.product?.name || null,
+                                        start_date: service.terms.termed_period.start_date ? formatDate(service.terms.termed_period.start_date) : null,
+                                        end_date: service.terms.termed_period.end_date ? formatDate(service.terms.termed_period.end_date) : null,
+                                        value: deviceValues.length > 0 ? deviceValues[0] : null,
+                                    });
+
                                 }
                             }
                         } catch (error) {
-                            console.error(`Error fetching subscriptions for contact ${contactId}:`, error);
+                            console.error(`Error fetching services for contact ${contactId}:`, error);
                             subscriptionsWithDetails.push({
                                 state: null,
+                                product_name: null,
                                 start_date: null,
                                 end_date: null,
                                 value: null,
@@ -896,6 +904,7 @@ const getTvContactDetails = async (req, res) => {
                     console.error(`Error fetching tags for contact ${contactId}:`, error);
                     subscriptionsWithDetails.push({
                         state: null,
+                        product_name: null,
                         start_date: null,
                         end_date: null,
                         value: null,
@@ -907,7 +916,7 @@ const getTvContactDetails = async (req, res) => {
             if (subscriptionsWithDetails.length > 0) {
                 return res.status(200).json(subscriptionsWithDetails); // Return array directly
             } else {
-                return res.status(200).json({ message: 'No subscriptions with "OTT" tag found for the given phone number' });
+                return res.status(200).json({ message: 'No subscriptions with "Medianet TV" tag found for the given phone number' });
             }
         } else {
             return res.status(200).json({ message: 'No contacts found for the given phone number' });

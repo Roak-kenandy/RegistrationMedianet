@@ -105,31 +105,42 @@ const RegistrationKycExisting = () => {
         });
     };
 
-    // Updated logic for showing registration button
-    const shouldShowRegistrationButton = () => {
-        // If user has only one subscription and it's "ONE DAY TRIAL", don't show button regardless of status
-        if (subscriptions.length === 1 && subscriptions[0].product_name === 'ONE DAY TRIAL') {
-            return false;
-        }
-        
-        // Check if there are active subscriptions (excluding ONE DAY TRIAL)
-        const hasActiveNonTrialSubscriptions = subscriptions.some(sub => 
-            sub.state?.toLowerCase() === 'active' && sub.product_name == 'ONE DAY TRIAL'
+const shouldShowRegistrationButton = () => {
+    // Check if there is an active ONE DAY TRIAL subscription
+    const hasActiveOneDayTrial = subscriptions.some(
+        sub => sub.product_name === 'ONE DAY TRIAL' && sub.state?.toLowerCase() === 'active'
+    );
+
+    // If there is an active ONE DAY TRIAL, hide the button
+    if (hasActiveOneDayTrial) {
+        return false;
+    }
+
+    // Check if ONE DAY TRIAL is churned or does not exist
+    const oneDayTrialStatus = subscriptions.find(
+        sub => sub.product_name === 'ONE DAY TRIAL'
+    )?.state?.toLowerCase();
+    const isOneDayTrialChurnedOrNonExistent = !oneDayTrialStatus || oneDayTrialStatus === 'churned';
+
+    // If ONE DAY TRIAL is not churned or does not exist, proceed with checking active non-trial subscriptions
+    if (isOneDayTrialChurnedOrNonExistent) {
+        // Filter out subscriptions that are "ONE DAY TRIAL"
+        const nonTrialSubscriptions = subscriptions.filter(
+            sub => sub.product_name !== 'ONE DAY TRIAL'
         );
-        
-        // Check if there's an active ONE DAY TRIAL
-        const hasActiveOneDayTrial = subscriptions.some(sub => 
-            sub.product_name === 'ONE DAY TRIAL' && sub.state?.toLowerCase() === 'active'
+
+        // Count active non-trial subscriptions
+        const activeNonTrialSubscriptions = nonTrialSubscriptions.filter(
+            sub => sub.state?.toLowerCase() === 'active'
         );
-        
-        // If there's an active ONE DAY TRIAL, don't show the button
-        if (hasActiveOneDayTrial) {
-            return false;
-        }
-        
-        // Show button if there are active non-trial subscriptions and total subscriptions >= 2
-        return hasActiveNonTrialSubscriptions && subscriptions.length >= 2;
-    };
+
+        // Show button if there are 1 or 2 active non-trial subscriptions
+        return activeNonTrialSubscriptions.length === 1 || activeNonTrialSubscriptions.length === 2;
+    }
+
+    // Hide button by default if ONE DAY TRIAL is not churned
+    return false;
+};
 
     const showRegistrationButton = shouldShowRegistrationButton();
 
@@ -142,60 +153,58 @@ const RegistrationKycExisting = () => {
                 <h1 className="title">
                     You are already <span className="highlight">Registered!</span>
                 </h1>
-                <div className="subscriptions-list">
-                    {subscriptions.length > 0 ? (
-                        subscriptions.map((subscription, index) => (
-                            <div key={index} className="subscription-card">
-                                <div className="field-group">
-                                    <span className="field-label">Service Code</span>
-                                    <span className="field-value">{maskString(subscription.value)}</span>
-                                </div>
-                                <div className="field-group">
-                                    <span className="field-label">Product Name</span>
-                                    <span className="field-value">{subscription.product_name || 'N/A'}</span>
-                                </div>
-                                <div className="field-group">
-                                    <span className="field-label">Status</span>
-                                    <span className="field-value status">
-                                        <span className={`status-indicator ${subscription.state?.toLowerCase() || 'unknown'}`}></span>
-                                        {subscription.state || 'N/A'}
-                                    </span>
-                                </div>
-                                <div className="field-group">
-                                    <span className="field-label">Start Date</span>
-                                    <span className="field-value">{subscription.start_date || 'N/A'}</span>
-                                </div>
-                                <div className="field-group">
-                                    <span className="field-label">End Date</span>
-                                    <span className="field-value">{subscription.end_date || 'N/A'}</span>
-                                </div>
-                                <div className="button-group">
-                                    <button
-                                        className={`action-button ${subscription.state?.toLowerCase() || 'unknown'}`}
-                                        onClick={() => handleButtonClick(subscription, index)}
-                                        disabled={loadingStates[index]}
-                                    >
-                                        {loadingStates[index] ? (
-                                            <span className="spinner-existing"></span>
-                                        ) : (
-                                            subscription.state?.toLowerCase() === 'active'
-                                                ? 'Resend Login Details'
-                                                : 'Subscribe'
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="no-data">No existing subscriptions found.</p>
-                    )}
+<div className="subscriptions-list">
+    {subscriptions.length > 0 ? (
+        subscriptions
+            .filter(subscription => subscription.state?.toLowerCase() !== 'churned') // Filter out churned subscriptions
+            .map((subscription, index) => (
+                <div key={index} className="subscription-card">
+                    <div className="field-group">
+                        <span className="field-label">Product Name</span>
+                        <span className="field-value">{subscription.product_name || 'N/A'}</span>
+                    </div>
+                    <div className="field-group">
+                        <span className="field-label">Status</span>
+                        <span className="field-value status">
+                            <span className={`status-indicator ${subscription.state?.toLowerCase() || 'unknown'}`}></span>
+                            {subscription.state || 'N/A'}
+                        </span>
+                    </div>
+                    <div className="field-group">
+                        <span className="field-label">Start Date</span>
+                        <span className="field-value">{subscription.start_date || 'N/A'}</span>
+                    </div>
+                    <div className="field-group">
+                        <span className="field-label">End Date</span>
+                        <span className="field-value">{subscription.end_date || 'N/A'}</span>
+                    </div>
+                    <div className="button-group">
+                        <button
+                            className={`action-button ${subscription.state?.toLowerCase() || 'unknown'}`}
+                            onClick={() => handleButtonClick(subscription, index)}
+                            disabled={loadingStates[index]}
+                        >
+                            {loadingStates[index] ? (
+                                <span className="spinner-existing"></span>
+                            ) : (
+                                subscription.state?.toLowerCase() === 'active'
+                                    ? 'Resend Login Details'
+                                    : 'Subscribe'
+                            )}
+                        </button>
+                    </div>
                 </div>
+            ))
+    ) : (
+        <p className="no-data">No existing subscriptions found.</p>
+    )}
+</div>
                 {showRegistrationButton && (
                     <button
                         className="action-button registration"
                         onClick={handleGoToRegistration}
                     >
-                        Go to Registration
+                        Create Another Account
                     </button>
                 )}
             </div>
