@@ -2,11 +2,11 @@ const MtvUsersModel = require('../models/MTVUsers');
 const { v4: uuidv4 } = require('uuid');
 const { crmRequest, mtvRequest } = require('./apiService');
 const { DEFAULT_TAG_ID } = require('../config/apiConfig');
-const registerProfile = async (firstName, lastName,phoneNumber,countryCode,referralCode, referralType) => {
+const registerProfile = async (firstName, lastName,phoneNumber,countryCode,referralCode, referralType, registerType) => {
     try {
 
         const newUser = new MtvUsersModel({
-            firstName, lastName,phoneNumber,countryCode,referralCode,referralType
+            firstName, lastName,phoneNumber,countryCode,referralCode,referralType, registerType
         });
 
         await newUser.save();

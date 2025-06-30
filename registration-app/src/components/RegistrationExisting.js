@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/RegistrationExisting.css';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import { smsService } from '../services/smsService';
 import Popup from './Popup';
 
@@ -56,7 +56,7 @@ const RegistrationExisting = () => {
     const handleClosePopup = () => {
         setShowPopup(false);
         if (redirectAfterPopup) {
-            navigate('/registration-medianet', { state: { data: subscriptions, phoneNumber, firstName, lastName } });
+            navigate('/registration-category', { state: { data: subscriptions, phoneNumber, firstName, lastName } });
             setRedirectAfterPopup(false);
         }
     };
@@ -81,7 +81,7 @@ const RegistrationExisting = () => {
                 setShowPopup(true);
                 setRedirectAfterPopup(true);
             } else if (subscription.state?.toLowerCase() === 'inactive' || subscription.state?.toLowerCase() === 'churned') {
-                localStorage.setItem('returningTo', '/registration-medianet');
+                localStorage.setItem('returningTo', '/registration-category');
                 window.location.href = 'https://my.medianet.mv';
             }
         } catch (error) {

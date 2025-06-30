@@ -27,6 +27,8 @@
     max-width: clamp(150px, 20vw, 200px);
     padding: 0 10px;
     z-index: 10;
+    display: flex;
+    justify-content: center;
 }
 
 .logo-image {
@@ -52,6 +54,11 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: clamp(10px, 2vw, 20px);
+    background: linear-gradient(to right, #fff, #FFD700);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-top: 5rem;
 }
 
 .highlight {
@@ -143,6 +150,12 @@
     width: 100%;
 }
 
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 .action-button {
     padding: clamp(10px, 2vw, 14px);
     border: none;
@@ -151,9 +164,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 100%;
+    flex: 1;
     text-align: center;
-    margin-top: 10px;
 }
 
 .action-button.active {
@@ -192,6 +204,18 @@
     cursor: not-allowed;
 }
 
+.action-button.registration {
+    background-color: #007bff;
+    color: #fff;
+    width: 100%; /* Ensure full width for single button */
+    margin-top: 20px; /* Add spacing above the button */
+}
+
+.action-button.registration:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+}
+
 /* Responsive Design */
 
 /* Mobile Styles */
@@ -203,6 +227,7 @@
     .logo {
         max-width: 120px;
         top: 0;
+        padding: 30px 15px;
     }
 
     .logo-image {
@@ -225,7 +250,16 @@
 
     .title {
         font-size: 28px;
-        padding-top: 1rem;
+        padding-top: 5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-button.registration {
+        margin-top: 15px;
     }
 }
 
@@ -242,6 +276,15 @@
     .content-wrapper {
         max-width: 400px;
     }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .action-button.registration {
+        margin-top: 15px;
+    }
 }
 
 /* Small Desktop Styles */
@@ -252,6 +295,15 @@
 
     .content-wrapper {
         max-width: 500px;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .action-button.registration {
+        margin-top: 15px;
     }
 }
 
@@ -272,6 +324,15 @@
     .title {
         font-size: 36px;
         padding-top: 2rem;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .action-button.registration {
+        margin-top: 20px;
     }
 }
 

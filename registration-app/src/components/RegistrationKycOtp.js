@@ -6,7 +6,7 @@ import { smsService } from '../services/smsService';
 import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationOtp.css';
 
-const RegistrationOtp = () => {
+const RegistrationKycOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { phoneNumber, formData } = location.state || {};
@@ -24,7 +24,7 @@ const RegistrationOtp = () => {
 
   useEffect(() => {
     if (!phoneNumber || !formData) {
-      navigate('/registration-medianet', { replace: true });
+      navigate('/registration-device', { replace: true });
     }
   }, [phoneNumber, formData, navigate]);
 
@@ -69,7 +69,7 @@ const RegistrationOtp = () => {
 
     // Auto-verify if 6 digits are entered
     if (value.length === 6 && !isOtpExpired && value === generatedOtp) {
-      navigate('/registration-plan', { state: { formData } });
+      navigate('/registration-tv-plan', { state: { formData } });
     }
   };
 
@@ -100,7 +100,7 @@ const RegistrationOtp = () => {
       }
 
       if (pastedData.length === 6 && !isOtpExpired && pastedData === generatedOtp) {
-        navigate('/registration-plan', { state: { formData } });
+        navigate('/registration-tv-plan', { state: { formData } });
       }
 
       // Update the hidden input value
@@ -190,7 +190,7 @@ const RegistrationOtp = () => {
     }
 
     if (otpValue === generatedOtp) {
-      navigate('/registration-plan', { state: { formData } });
+      navigate('/registration-tv-plan', { state: { formData } });
     } else {
       setError('Invalid OTP. Please try again.');
     }
@@ -312,4 +312,4 @@ const RegistrationOtp = () => {
   );
 };
 
-export default RegistrationOtp;
+export default RegistrationKycOtp;

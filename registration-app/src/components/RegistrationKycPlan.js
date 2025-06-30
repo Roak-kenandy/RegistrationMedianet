@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { registrationService } from '../services/registrationService';
+import { registrationKycService } from '../services/registrationKycService';
 import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationPlan.css';
+import { smsService } from '../services/smsService';
 import { debounce } from 'lodash';
 
-const RegistrationPlan = () => {
+const RegistrationKycPlan = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState(null);
@@ -18,7 +19,7 @@ const RegistrationPlan = () => {
 
   useEffect(() => {
     if (!location.state?.formData) {
-      navigate('/registration-medianet', { replace: true });
+      navigate('/registration-device', { replace: true });
       return;
     }
     setFormData(location.state.formData);
@@ -34,8 +35,8 @@ const RegistrationPlan = () => {
   const plans = [
     {
       name: 'Free Trial',
-      duration: '30 Days',
-      features: ['95+ Live Channels', '01 Mobile Device'],
+      duration: '1 Day',
+      features: ['95+ Live Channels'],
       selectButton: 'Continue',
     },
   ];
@@ -58,23 +59,34 @@ const RegistrationPlan = () => {
           throw new Error('Missing registration data');
         }
 
-        const contactId = await registrationService.registerContact(formData);
+
+        const contactId = await registrationKycService.registerContact(formData);
         if (!contactId) throw new Error('Failed to register contact');
 
-        const deviceSuccess = await registrationService.createVirtualDevice(contactId);
+        const deviceSuccess = await registrationKycService.createVirtualDevice(contactId);
         if (!deviceSuccess) throw new Error('Failed to create virtual device');
 
-        const accountSuccess = await registrationService.createAccount(contactId);
+        const accountSuccess = await registrationKycService.createAccount(contactId);
         if (!accountSuccess) throw new Error('Failed to create account');
 
-        const subscriptionSuccess = await registrationService.getSubscriptionContacts(contactId);
+        const subscriptionSuccess = await registrationKycService.getSubscriptionContacts(contactId);
         if (!subscriptionSuccess) throw new Error('Failed to get subscription contacts');
 
-        const subscriptionDeviceCode = await registrationService.getSubDeviceCode(subscriptionSuccess.subscription_id);
+        const subscriptionDeviceCode = await registrationKycService.getSubDeviceCode(subscriptionSuccess.subscription_id);
         if (!subscriptionDeviceCode) throw new Error('Failed to get subscription device code');
         deviceCode = subscriptionDeviceCode.content[0]?.custom_fields?.find(field => field.key === 'code')?.value || 'N/A';
 
-        await registrationService.postMtvUser(formData);
+        await registrationKycService.postMtvUser(formData);
+
+        //Send SMS after all successful API calls
+        const userFirstName = formData.firstName || 'User';
+        const userLastName = formData.lastName || '';
+        const phoneNumber = formData.phoneNumber || '';
+
+const message = `Hi ${userFirstName} ${userLastName},\n\nYour 1-day free trial for Medianet TV has been successfully activated! Enjoy unlimited access to your favorite channels today.\n\nTo continue watching without interruption, subscribe to a monthly TV package here:\n\nhttps://my.medianet.mv`;
+
+
+        await smsService.sendOtp(phoneNumber, message);
         success = true;
 
         localStorage.setItem('medianetCompleted', 'true');
@@ -151,4 +163,4 @@ const RegistrationPlan = () => {
   );
 };
 
-export default RegistrationPlan;
+export default RegistrationKycPlan;

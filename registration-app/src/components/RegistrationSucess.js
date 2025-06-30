@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
 import '../styles/RegistrationSuccess.css';
 
 const RegistrationSuccess = () => {
@@ -17,7 +17,7 @@ const RegistrationSuccess = () => {
       // Log current path for debugging
       // If no formData is provided, redirect immediately
       if (!location.state?.formData) {
-        navigate('/registration-medianet', { replace: true });
+        navigate('/registration-category', { replace: true });
         return;
       }
   
@@ -42,12 +42,12 @@ const RegistrationSuccess = () => {
   };
 
   const handleBackToLogin = () => {
-    navigate('/registration-medianet');
+    navigate('/registration-category');
   };
 
   return (
     <div className="reg-success-wrapper">
-      <div className="reg-success-greeting">Welcome To</div>
+      {/* <div className="reg-success-greeting">Welcome To</div> */}
       <div className="reg-success-brand-image-container">
         <img src={logoImage} alt="Medianet Brand" className="reg-success-brand-image" />
       </div>

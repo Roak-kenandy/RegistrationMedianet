@@ -29,7 +29,7 @@
 
 .reg-success-brand-image-container {
     position: absolute;
-    top: 60px; /* Moved down from 50px to create space below "Welcome To" */
+    top: 60px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;

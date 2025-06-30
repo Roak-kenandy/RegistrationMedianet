@@ -7,6 +7,7 @@ const mtvUserSchema = new mongoose.Schema({
     countryCode: { type: String, required: true },
     referralCode: { type: String, required: false },
     referralType: { type: String, required: false },
+    registerType: { type: String, required: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model("MTVUser", mtvUserSchema, "MTVUsers");

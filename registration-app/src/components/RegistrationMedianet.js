@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { registrationService } from '../services/registrationService';
 import { COUNTRY_DATA } from '../config/constants';
 import Popup from './Popup';
-import logoImage from '../assests/medianet-app-image.jpg';
+import logoImage from '../assests/medianet-app-image.png';
+import { useMedianet } from '../context/MedianetContext'; // ✅ Import the context
 import '../styles/RegistrationMedianet.css';
 
 const RegistrationMedianet = () => {
   const navigate = useNavigate();
+  const { completeMedianet } = useMedianet(); // ✅ Use context method
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -58,9 +60,7 @@ const RegistrationMedianet = () => {
       setIsLoading(true);
       const data = await registrationService.verifyPhoneNumber(formData.phoneNumber);
 
-      localStorage.setItem('medianetCompleted', 'true'); // Set flag
-      // Dispatch custom event to notify NavigationController
-      window.dispatchEvent(new Event('medianetCompletedChange'));
+      completeMedianet(); // ✅ Set context + safe storage
 
       if (data.length > 0) {
         navigate('/registration-existing', {
@@ -82,7 +82,7 @@ const RegistrationMedianet = () => {
           }
 
           const fullPhoneNumber = `${selectedCountry.phoneCode}${formData.phoneNumber}`;
-          
+
           navigate('/registration-otp', {
             state: {
               phoneNumber: fullPhoneNumber,
@@ -144,7 +144,7 @@ const RegistrationMedianet = () => {
           <img src={logoImage} alt="Medianet Logo" className="logo-image" />
         </div>
 
-        <div className="mobile-form-container">
+        <div className="form-container">
           <h1 className="title">Register Now!</h1>
           <form onSubmit={handleSubmit} className="form">
             <div className="input-container">
@@ -270,26 +270,10 @@ const RegistrationMedianet = () => {
                 disabled={!isFormValid || isLoading}
                 className={`submit-button ${isLoading ? 'loading' : ''}`}
               >
-                {isLoading ? (
-                  <div className="spinner-medianet"></div>
-                ) : (
-                  'Continue'
-                )}
+                {isLoading ? <div className="spinner-medianet"></div> : 'Continue'}
               </button>
             </div>
           </form>
-        </div>
-
-        <div className="desktop-contact-container">
-          <h1 className="title">Medianet Registration</h1>
-          <div className="contact-info">
-            <p>Medianet Registration Portal will be LIVE soon! </p>
-            <p>Meanwhile, for registration and queries contact us at:</p>
-            <div className="contact-details">
-              <p><strong>Phone:</strong> 332-0800</p>
-              <p><strong>Email:</strong> support@medianet.mv</p>
-            </div>
-          </div>
         </div>
 
         {showPopup && (

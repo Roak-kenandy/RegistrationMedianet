@@ -45,54 +45,19 @@
     max-height: 80px;
 }
 
-.title {
-    font-size: clamp(24px, 6vw, 36px);
+.title-registration {
     margin-bottom: 2rem;
-    text-align: center;
+
+      font-size: clamp(28px, 6vw, 42px);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5px;
+  background: linear-gradient(to right, #fff, #FFD700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.mobile-form-container {
-    display: block;
-    width: 100%;
-}
-
-.desktop-contact-container {
-    display: none;
-    width: 100%;
-}
-
-.contact-info {
-    text-align: center;
-    background-color: #1a2b4a;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 500px;
-}
-
-.contact-info p {
-    font-size: clamp(16px, 2.5vw, 18px);
-    margin-bottom: 1.5rem;
-}
-
-.contact-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.contact-details p {
-    margin: 0;
-    font-size: clamp(14px, 2vw, 16px);
-}
-
-.contact-details strong {
-    color: #FFD700;
-    margin-right: 0.5rem;
-}
-
-/* Form Styles */
 .form {
     width: 100%;
     max-width: 500px;
@@ -136,14 +101,6 @@
     flex-wrap: nowrap;
 }
 
-.referral-container {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    flex-wrap: nowrap;
-    align-items: end;
-}
-
 .custom-select-wrapper {
     position: relative;
     min-width: 100px;
@@ -182,59 +139,37 @@
     z-index: 1;
 }
 
-.referral-select-container {
-    position: relative;
-    min-width: 100px;
-    flex: 0 0 auto;
-    width: 23%;
-}
-
-.select-label {
-    color: #fff;
-    font-size: clamp(12px, 2vw, 14px);
-    margin-bottom: 5px;
-    display: block;
-    white-space: nowrap;
-}
-
-.referral-select {
-    width: 100%;
-    padding: clamp(10px, 2vw, 15px);
-    background-color: #3A4445;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    color: #fff;
-    font-size: clamp(14px, 2.5vw, 16px);
-    outline: none;
-    transition: all 0.3s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-}
-
-.referral-select:hover {
-    background-color: #4A5556;
-}
-
-.referral-select:focus {
-    border-color: #FFD700;
-    background-color: #4A5556;
-}
-
 .phone-input {
     flex: 1;
     min-width: 0;
 }
 
-.referral-input {
-    flex: 1;
-    position: relative;
+.address-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.referral-input-field {
-    padding-top: 20px;
-    padding-bottom: 8px;
+.address-title {
+    font-size: clamp(18px, 4vw, 24px);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5px;
+  background: linear-gradient(to right, #fff, #FFD700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.address-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
+.address-row .input-container {
+    flex: 1;
 }
 
 .floating-label {
@@ -329,49 +264,41 @@
 }
 
 @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
 
 /* Media Queries */
 @media only screen and (min-width: 992px) {
-    .mobile-form-container {
-        display: none;
-    }
-    
-    .desktop-contact-container {
-        display: block;
-    }
-    
     .logo {
         max-width: 250px;
     }
-    
-    .title {
-        font-size: 40px;
-    }
-    
-    .contact-info {
-        padding: 3rem;
-        max-width: 600px;
+
+    .title-registration {
+        font-size: 28px;
+        padding-top: 4rem;
     }
 }
 
 @media only screen and (min-width: 1200px) {
-    .contact-info {
-        max-width: 700px;
-    }
-    
-    .title {
-        font-size: 48px;
-    }
-    
-    .contact-details p {
-        font-size: 18px;
+    .title-registration {
+        font-size: 40px;
+        padding-top: 4rem;
     }
 }
 
 @media (max-width: 480px) {
+
+    .title-registration {
+        font-size: 28px;
+        padding-top: 2rem;
+    }
+
     .logo {
         max-width: 150px;
         top: 0px;
@@ -391,29 +318,31 @@
     }
 
     .phone-container,
-    .referral-container {
+    .address-row {
         display: flex;
         gap: 8px;
         width: 100%;
         flex-wrap: nowrap;
     }
 
-    .custom-select-wrapper,
-    .referral-select-container {
+    .custom-select-wrapper {
         min-width: 90px;
         width: 23%;
     }
 
     .input,
     .custom-select-display,
-    .select,
-    .referral-select {
+    .select {
         padding: 10px;
         font-size: 14px;
     }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
+        .title-registration {
+        font-size: 28px;
+        padding-top: 5rem;
+    }
     .logo {
         max-width: 180px;
     }
@@ -428,6 +357,10 @@
 }
 
 @media (min-width: 769px) and (max-width: 991px) {
+        .title-registration {
+        font-size: 28px;
+        padding-top: 3rem;
+    }
     .logo {
         max-width: 200px;
     }
