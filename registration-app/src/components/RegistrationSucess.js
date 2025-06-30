@@ -47,7 +47,7 @@ const RegistrationSuccess = () => {
 
   return (
     <div className="reg-success-wrapper">
-      <div className="reg-success-greeting">Welcome To</div>
+      {/* <div className="reg-success-greeting">Welcome To</div> */}
       <div className="reg-success-brand-image-container">
         <img src={logoImage} alt="Medianet Brand" className="reg-success-brand-image" />
       </div>

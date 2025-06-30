@@ -278,7 +278,7 @@ const RegistrationKycScreen = () => {
                                 )}
                             </div>
 
-                            <div className="input-container">
+                            {/* <div className="input-container">
                                 <label
                                     className={`floating-label ${formData.addressType ? 'active' : ''}`}
                                     htmlFor="addressType"
@@ -296,7 +296,7 @@ const RegistrationKycScreen = () => {
                                     <option value="Business">Business</option>
                                     <option value="Alternative">Alternative</option>
                                 </select>
-                            </div>
+                            </div> */}
 
                             <div className="input-container">
                                 <label

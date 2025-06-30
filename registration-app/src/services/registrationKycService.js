@@ -30,7 +30,7 @@ export const registrationKycService = {
           type: 'MOBILE',
         },
         address: {
-          type: formData.addressType.toUpperCase(),
+          type: 'HOME',
           name: "",
           is_primary: true,
           name: formData.fullAddress,
