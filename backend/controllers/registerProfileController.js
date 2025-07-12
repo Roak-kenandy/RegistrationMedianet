@@ -25,6 +25,7 @@ const CLASSIFICATION_ID = process.env.CLASSIFICATION_ID;
 const CURRENCY_CODE = process.env.CURRENCY_CODE;
 const PAYMENT_TERMS_ID = process.env.PAYMENT_TERMS_ID;
 const PRICE_TERMS_ID = process.env.PRICE_TERMS_ID;
+const PRICE_TERMS_ID_SECOND = process.env.PRICE_TERMS_ID_SECOND;
 const SERVICE_PRODUCT_ID = process.env.SERVICE_PRODUCT_ID;
 const TV_PRICE_TERMS_ID = process.env.TV_PRICE_TERMS_ID;;
 const TV_SERVICE_PRODUCT_ID = process.env.TV_SERVICE_PRODUCT_ID;
@@ -333,30 +334,39 @@ const postTvAccount = async (req, res) => {
  * @returns {Promise<void>}
  */
 const postSubscription = async (contactId, accountId) => {
+    const tryPostSubscription = async (priceTermsId) => {
+        const payload = {
+            account_id: accountId,
+            scheduled_date: null,
+            services: [{
+                price_terms_id: priceTermsId,
+                product_id: SERVICE_PRODUCT_ID,
+                quantity: 1,
+            }],
+        };
 
-    const payload = {
-        account_id: accountId,
-        scheduled_date: null,
-        services: [{
-            price_terms_id: PRICE_TERMS_ID,
-            product_id: SERVICE_PRODUCT_ID,
-            quantity: 1,
-        }],
-    };
-
-    try {
         const response = await fetch(`${CRM_BASE_URL}/contacts/${contactId}/services`, {
             method: 'POST',
             headers: crmHeaders,
             body: JSON.stringify(payload),
         });
 
-        await response.json();
+        const data = await response.json();
+        return { ok: response.ok, data };
+    };
+
+    try {
+        const firstAttempt = await tryPostSubscription(PRICE_TERMS_ID);
+
+        if (!firstAttempt.ok && firstAttempt.data?.message === 'Invalid value.') {
+            console.warn('First price_terms_id failed, retrying with fallback ID...');
+            await tryPostSubscription(PRICE_TERMS_ID_SECOND);
+        }
     } catch (error) {
-        console.log(error, 'error getting response')
         console.error('Error creating subscription in CRM:', error);
     }
 };
+
 
 /**
  * Creates a subscription for a contact
