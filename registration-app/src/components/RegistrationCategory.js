@@ -33,7 +33,7 @@ const RegistrationCategory = () => {
       <div className="logo-header">
         <img src={logoImage} alt="Medianet Logo" className="logo-image" />
       </div>
-      <h1 className="entertainment-header">Select. Stream. Enjoy.</h1>
+      <h1 className="entertainment-header">Select . Stream. Enjoy.</h1>
       
       <div className="devices-container">
         {/* Mobile Device Card */}
