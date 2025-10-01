@@ -356,7 +356,7 @@ const postSubscription = async (contactId, accountId) => {
     };
 
     try {
-        const firstAttempt = await tryPostSubscription('3bd535b8-2492-4887-991a-5854bb2e7f88');
+        const firstAttempt = await tryPostSubscription(PRICE_TERMS_ID);
 
         if (!firstAttempt.ok && firstAttempt.data?.message === 'Invalid value.') {
             console.warn('First price_terms_id failed, retrying with fallback ID...');
