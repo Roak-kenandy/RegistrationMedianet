@@ -9,7 +9,7 @@ export const COUNTRY_DATA = [
   };
 
   export const MTV_CONFIG = {
-    BASE_URL: 'https://mtvdev.medianet.mv/api/v1',
+    BASE_URL: 'https://register.medianet.mv/api/v1',
     HEADERS: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

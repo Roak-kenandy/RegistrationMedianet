@@ -11,7 +11,8 @@ const mtvHeaders = {
   'Content-Type': 'application/json',
 };
 
-const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
+// const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
+const MTV_BASE_URL = 'https://register.medianet.mv/api/v1';
 // const MTV_BASE_URL = 'http://localhost:3004/api/v1';
 
 export const registrationService = {

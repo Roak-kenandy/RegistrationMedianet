@@ -1,5 +1,5 @@
 const CRM_BASE_URL = 'https://app.crm.com/backoffice/v2';
-const MTV_BASE_URL = 'https://mtvdev.medianet.mv/api/v1';
+const MTV_BASE_URL = 'https://register.medianet.mv/api/v1';
 const DEFAULT_API_KEY = 'c54504d4-0fbe-41cc-a11e-822710db9b8d';
 const DEFAULT_TAG_ID = '0c0d20c2-08e1-4483-bcbe-638608fedaba';
 

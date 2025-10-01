@@ -145,7 +145,7 @@ const Confirmation = () => {
 
     const callVirtualDevice = async (contact_id) => {
         try {
-            const response = await fetch('https://mtvdev.medianet.mv/api/v1/devices', {
+            const response = await fetch('https://register.medianet.mv/api/v1/devices', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ const Confirmation = () => {
 
     const callCreatingAccount = async (contact_id) => {
         try {
-            const response = await fetch('https://mtvdev.medianet.mv/api/v1/accounts', {
+            const response = await fetch('https://register.medianet.mv/api/v1/accounts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ const Confirmation = () => {
 
     const callSubscriptionContacts = async (contact_id) => {
         try {
-            const response = await fetch(`https://mtvdev.medianet.mv/api/v1/getSubscriptionContacts/${contact_id}`, {
+            const response = await fetch(`https://register.medianet.mv/api/v1/getSubscriptionContacts/${contact_id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -447,7 +447,7 @@ const Confirmation = () => {
 
     const callPostMtvUser = async () => {
         try {
-            const url = 'https://mtvdev.medianet.mv/api/v1/mtvusers';
+            const url = 'https://register.medianet.mv/api/v1/mtvusers';
             const payload = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,

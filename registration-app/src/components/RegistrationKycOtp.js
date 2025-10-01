@@ -219,7 +219,7 @@ const RegistrationKycOtp = () => {
 
   const logToServer = async (message) => {
     try {
-      await fetch('https://mtvdev.medianet.mv/api/v1/log', {
+      await fetch('https://register.medianet.mv/api/v1/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
